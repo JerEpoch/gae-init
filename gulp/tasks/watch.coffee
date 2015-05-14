@@ -7,7 +7,7 @@ gulp.task 'reload', false, ->
   $.livereload.listen 35729
   $.watch [
     "#{paths.static.dev}/**/*.{css,js}"
-    "#{paths.main}/**/*.{html,py}"
+    "#{paths.main}/**/*.{html,py,md}"
   ], events: ['change'], (file) ->
     $.livereload.changed file
 
