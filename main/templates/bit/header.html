@@ -15,8 +15,8 @@
         <li class="{{'active' if html_class == 'show-search'}}">
           <a href="{{ url_for('search_a_show') }}">Search For a Show</a>
         </li>
-        <li>
-          <a href="{{ url_for('wiki_site') }}">A Wiki Type Site</a>
+        <li class="{{'active' if html_class == 'other-projects'}}">
+          <a href="{{ url_for('wiki_site') }}">Other Projects</a>
         </li>
       </ul>
       <ul class="nav navbar-nav navbar-right">

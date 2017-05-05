@@ -87,13 +87,9 @@ def shows_today():
 															shows = shows,
 															)
 
-@app.route('/colorgame/', methods=['GET','POST'])
-def color_game():
-	return flask.render_template('colorGame.html', html_class='color-game',)
 
-
-@app.route('/other_projects/', methods=['GET', 'POST'])
+@app.route('/wiki/', methods=['GET', 'POST'])
 def wiki_site():
-	return flask.render_template('projects.html',
-															html_class = 'other-projects',)
+	return flask.render_template('wiki.html',
+															html_class = 'wiki-site',)
 
