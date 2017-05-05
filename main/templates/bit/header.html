@@ -7,11 +7,17 @@
         <span class="icon-bar"></span>
         <span class="icon-bar"></span>
       </button>
-      <a class="navbar-brand" href="{{url_for('welcome')}}">{{config.CONFIG_DB.brand_name}}</a>
+      <a class="navbar-brand" href="{{url_for('welcome')}}">Home</a>
     </div>
     <nav class="collapse navbar-collapse">
       <ul class="nav navbar-nav">
         # include 'bit/contact_menu.html'
+        <li class="{{'active' if html_class == 'show-search'}}">
+          <a href="{{ url_for('search_a_show') }}">Search For a Show</a>
+        </li>
+        <li>
+          <a href="{{ url_for('wiki_site') }}">A Wiki Type Site</a>
+        </li>
       </ul>
       <ul class="nav navbar-nav navbar-right">
         # include 'bit/user_menu.html'

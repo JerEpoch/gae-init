@@ -1,0 +1,31 @@
+# extends 'base.html'
+
+# block content
+<div class="container-fluid">
+	<div class="row">
+		<div class="col-md-4">
+			<h1>Shows Air Today</h1>
+
+			{% for show in shows %}
+				<p>{{ show['name'] }}</p>
+			{% endfor %}
+		</div>
+
+		<div class="col-md-4">
+			<h1>Shows That Air Within A Week</h1>
+			{% for show in showsWeek %}
+				<p>{{ show['name'] }}</p>
+			{% endfor %}
+		</div>
+
+		<div class="col-md-4">
+			<h1>Your Searched Show</h1>
+			{% for show in searched %}
+				<p>{{ show['name'] }}</p>
+			{% endfor %}
+		</div>
+	</div>
+</div>
+
+
+# endblock

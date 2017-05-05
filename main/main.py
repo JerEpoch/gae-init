@@ -27,6 +27,7 @@ import auth
 import control
 import model
 import task
+import tvshows
 
 from api import helpers
 

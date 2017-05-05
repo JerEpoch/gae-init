@@ -1,0 +1,35 @@
+# extends 'base.html'
+# import 'macro/forms.html' as forms
+
+
+# block content
+	<h1>Search For a Show</h1>
+
+
+	<div class="container-fluid">
+		<div class="row">
+			<div class="col-xs-6 col-md-4">
+				<form method="POST" action=".">
+					<fieldset>
+						{{ form.csrf_token }}
+					
+						{{forms.text_field(form.name, autofocus=True)}}
+						<button type="submit" class="btn btn-primary btn-block">
+							Submit
+						</button>
+					</fieldset>
+				</form>
+			</div>
+				<div class="col-xs-6 col-md-4">
+				<form action="{{ url_for('shows_today') }}" method="POST">
+					<button type="submit" class="btn btn-primary btn-block">
+						Get Shows Airing Today
+					</button>
+				</form>
+			</div>
+		</div>
+	</div>
+
+
+
+# endblock
