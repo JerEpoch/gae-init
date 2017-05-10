@@ -1,11 +1,13 @@
 from wtforms import Form, validators, StringField,TextAreaField
 from flask_wtf import FlaskForm
 from wtforms.validators import DataRequired
+from google.appengine.api import memcache
 import wtforms
 import flask
 import auth
 import model
 import util
+
 import urllib2
 
 from flask import json
@@ -24,10 +26,15 @@ class WikiEntryUpdate(FlaskForm):
 
 
 def getAirsToday():
-	url = 'https://api.themoviedb.org/3/tv/airing_today?page=1&language=en-US&api_key=3a3628871c75cfc1fa3bcf7b2f9043aa'
-	json_obj = urllib2.urlopen(url)
-	data = json.load(json_obj)
-	return data['results']
+	data = memcache.get('dailyTV')
+	if data is not None:
+		return data
+	else:
+		url = 'https://api.themoviedb.org/3/tv/airing_today?page=1&language=en-US&api_key=3a3628871c75cfc1fa3bcf7b2f9043aa'
+		json_obj = urllib2.urlopen(url)
+		data = json.load(json_obj)
+		memcache.add('dailyTV', data['results'], time=300)
+		return data['results']
 
 def getAirsWeek():
 	url = 'https://api.themoviedb.org/3/tv/on_the_air?page=1&language=en-US&api_key=3a3628871c75cfc1fa3bcf7b2f9043aa'
