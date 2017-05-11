@@ -1,28 +1,17 @@
 # extends 'base.html'
 
 # block content
+
 <div class="container-fluid">
-	<div class="row">
-		<div class="col-md-4">
-			<h1>Shows Air Today</h1>
-
-			{% for show in shows %}
-				<p>{{ show['name'] }}</p>
-			{% endfor %}
-		</div>
-
-		<div class="col-md-4">
-			<h1>Shows That Air Within A Week</h1>
-			{% for show in showsWeek %}
-				<p>{{ show['name'] }}</p>
-			{% endfor %}
-		</div>
-
-		<div class="col-md-4">
-			<h1>Your Searched Show</h1>
+  <div class="row">
+		<div id="searchShow">
+			<div class="col-md-6 col-md-offset-3">
 			{% for show in searched %}
-				<p>{{ show['name'] }}</p>
+				<h1>{{ show['name'] }}</h1>
+				<img src="https://image.tmdb.org/t/p/w300{{ show['poster_path'] }}">
+				<p id="showOverview">{{ show['overview'] }}</p>
 			{% endfor %}
+			</div>
 		</div>
 	</div>
 </div>

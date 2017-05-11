@@ -34,7 +34,7 @@ def getAirsToday():
 		url = 'https://api.themoviedb.org/3/tv/airing_today?page=1&language=en-US&api_key=3a3628871c75cfc1fa3bcf7b2f9043aa'
 		json_obj = urllib2.urlopen(url)
 		data = json.load(json_obj)
-		memcache.add('dailyTV', data['results'], time=300)
+		memcache.add('dailyTV', data['results'], time=600)
 		return data['results']
 
 def getAirsWeek():
@@ -57,14 +57,10 @@ def getSearched(search):
 
 @app.route('/shows/<string:searched>', methods=['GET','POST'])
 def show_search(searched):
-	title = searched
-	shows = getAirsToday()
 	showsWeek = getAirsWeek()
 	searched = getSearched(searched)
 	return flask.render_template('searched.html',
 															html_class='searched',
-															show_name = title,
-															shows = shows,
 															showsWeek = showsWeek,
 															searched = searched,
 															)
