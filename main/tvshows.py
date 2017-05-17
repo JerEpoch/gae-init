@@ -28,27 +28,39 @@ class WikiEntryUpdate(FlaskForm):
 
 def getAirsToday():
 	data = memcache.get('dailyTV')
+	url = "https://api.themoviedb.org/3/tv/airing_today?page=1&language=en-US&api_key=3a3628871c75cfc1fa3bcf7b2f9043aa"
 	if data is not None:
 		return data
 	else:
-		url = 'https://api.themoviedb.org/3/tv/airing_today?page=1&language=en-US&api_key=3a3628871c75cfc1fa3bcf7b2f9043aa'
-		json_obj = urllib2.urlopen(url)
-		data = json.load(json_obj)
-		memcache.add('dailyTV', data['results'], time=600)
-		return data['results']
+		try:
+				json_obj = urllib2.urlopen(url).read()
+				data = json.load(json_obj)
+				memcache.add('dailyTV', data['results'], time=3600)
+				return data['results']
+		except urllib2.URLError:
+				logging.exception('Caught exception fetching url')
+	
 
 def getAirsWeek():
+	data = memcache.get('weeklyTV')
 	url = 'https://api.themoviedb.org/3/tv/on_the_air?page=1&language=en-US&api_key=3a3628871c75cfc1fa3bcf7b2f9043aa'
-	json_obj = urllib2.urlopen(url)
-	data = json.load(json_obj)
-	return data['results']
+	if data is not None:
+		return data
+	else:
+		json_obj = urllib2.urlopen(url)
+		data = json.load(json_obj)
+		memcache.add('weeklyTV', data['results'], time=3600)
+		return data['results']
 
 def getSearched(search):
 	search = search.replace(' ', '%20')
 	url = 'https://api.themoviedb.org/3/search/tv?page=1&query=' + search +'&language=en-US&api_key=3a3628871c75cfc1fa3bcf7b2f9043aa'
-	json_obj = urllib2.urlopen(url)
-	data = json.load(json_obj)
-	return data['results']
+	try:
+			json_obj = urllib2.urlopen(url)
+			data = json.load(json_obj)
+			return data['results']
+	except urllib2.URLError:
+			logging.exception('Caught exception fetching url')
 
 
 #=====================================================
