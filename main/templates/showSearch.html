@@ -22,8 +22,13 @@
 			</div>
 				<div class="col-xs-6 col-md-4">
 				<form action="{{ url_for('shows_today') }}" method="POST">
-					<button type="submit" class="btn btn-primary btn-block">
+					<button type="submit" id="btn-today" class="btn btn-primary btn-block">
 						Get Shows Airing Today
+					</button>
+				</form>
+				<form action="{{ url_for('shows_weekly') }}" method="POST">
+					<button type="submit" id="btn-week" class="btn btn-primary btn-block">
+						Get Shows Airing Within A Week
 					</button>
 				</form>
 			</div>

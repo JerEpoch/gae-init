@@ -16,6 +16,7 @@ from main import app
 
 # https://pythonhosted.org/Flask-Caching/
 # https://www.themoviedb.org/documentation/api
+# 63639
 
 class SearchShowForm(FlaskForm):
 	name = wtforms.StringField('Name', validators=[DataRequired()])
@@ -33,12 +34,44 @@ def getAirsToday():
 		return data
 	else:
 		try:
-				json_obj = urllib2.urlopen(url).read()
+				json_obj = urllib2.urlopen(url)
 				data = json.load(json_obj)
 				memcache.add('dailyTV', data['results'], time=3600)
 				return data['results']
 		except urllib2.URLError:
 				logging.exception('Caught exception fetching url')
+
+
+def getShowTest(data):
+	stuff = []
+	for show in data:
+		id = str(show['id'])
+		name = show['name']
+		url = 'https://api.themoviedb.org/3/tv/' + id + '?language=en-US&api_key=3a3628871c75cfc1fa3bcf7b2f9043aa'
+		json_obj = urllib2.urlopen(url)
+		data = json.load(json_obj)
+		stuff.append(data)
+	return stuff
+
+def getShowDetails(data):
+	# get a detail search for the show id and store it
+	# put this in a loop to get the details for each show
+	allShows = []
+	for show in data:
+		id = str(show['id'])
+		name = show['name']
+		url = 'https://api.themoviedb.org/3/tv/' + id + '?language=en-US&api_key=3a3628871c75cfc1fa3bcf7b2f9043aa'
+		memData = memcache.get(name)
+		if memData is not None:
+			return memData
+		else:
+			try:
+					json_obj = urllib2.urlopen(url)
+					data = json.load(json_obj)
+					allShows.append(data)
+			except urllib2.URLError:
+					logging.exception('Caught exception fetching url')
+	return allShows
 	
 
 def getAirsWeek():
@@ -69,21 +102,34 @@ def getSearched(search):
 
 @app.route('/shows/<string:searched>', methods=['GET','POST'])
 def show_search(searched):
-	showsWeek = getAirsWeek()
+	#showsWeek = getAirsWeek()
 	searched = getSearched(searched)
+	details = getShowDetails(searched)
 	return flask.render_template('searched.html',
 															html_class='searched',
-															showsWeek = showsWeek,
-															searched = searched,
+															details = details,
 															)
+
+
+@app.route('/show/details', methods=['GET','POST'])
+def show_detail():
+	shows = getShowDetails()
+	#shows = 'test test'
+	return flask.render_template('details.html',
+																html_class='show_detail',
+																shows = shows,
+																)
 
 
 @app.route('/shows/test', methods=['GET','POST'])
 def show_info():
 	# data = memcache.get('dailyTV')
-
-	return flask.render_template('showInfo.html',
+	thing = getSearched('star trek')
+	thing2 = getShowDetails(thing)
+	num =getShowTest(thing)
+	return flask.render_template('details.html',
 																html_class='show_info',
+																shows = thing2,
 																)
 
 # route for when a user searches for a show
@@ -105,10 +151,21 @@ def search_a_show():
 @app.route('/shows_today', methods=['GET', 'POST'])
 def shows_today():
 	shows = getAirsToday()
-
+	head = "Shows Airing Today"
 	return flask.render_template('todaysShows.html',
 															html_class = 'todays-shows',
 															shows = shows,
+															head = head,
+															)
+
+@app.route('/shows_weekly', methods=['post'])
+def shows_weekly():
+	shows = getAirsWeek()
+	head = "Shows Airing Within A Week"
+	return flask.render_template('todaysShows.html',
+															html_class = 'todays-shows',
+															shows = shows,
+															head = head,
 															)
 
 @app.route('/colorgame/', methods=['GET','POST'])

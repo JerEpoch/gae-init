@@ -1,0 +1,18 @@
+# extends 'base.html'
+
+# block content
+	<h1>Details</h1>
+
+	
+{{ shows }}
+
+	{% for show in shows %}
+		<p>{{ show['overview']}}</p>
+		{% if show['networks'].0 %}
+			<p>{{ show['networks'].0.name }}</p>
+		{% endif %}
+		
+	{% endfor %}
+
+		
+# endblock

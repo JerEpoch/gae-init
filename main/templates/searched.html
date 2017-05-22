@@ -6,15 +6,46 @@
   <div class="row">
 		<div id="searchShow">
 			<div class="col-md-6 col-md-offset-3">
-			{% for show in searched %}
+			{% for show in details %}
 				<h1>{{ show['name'] }}</h1>
-				<img src="https://image.tmdb.org/t/p/w300{{ show['poster_path'] }}">
+				{% if show['poster_path'] %}
+					<img src="https://image.tmdb.org/t/p/w300{{ show['poster_path'] }}">
+				{% endif %}
 				<p id="showOverview">{{ show['overview'] }}</p>
+
+				<button class="btn btn-primary">
+					<i class="fa fa-star-o" aria-hidden="true"> Add To Favorites</i>
+				</button>
+				<button class="btn btn-primary" type="button" data-toggle="collapse" data-target="#collapse{{loop.index}}" aria-expanded="false" aria-controls="#collapse{{loop.index}}">
+				  More Details
+				</button>
+				<div class="collapse" id="collapse{{loop.index}}">
+					<div class="well">
+						{% if show['networks'].0 %}
+							<p>Network: {{ show['networks'].0.name }}</p>
+						{% endif %}
+
+						<p>Last Air Date: {{ show['last_air_date'] }}</p>
+						<p>Number of Seasons: {{ show['number_of_seasons'] }}</p>
+
+							{% if show['in_production'] %}
+								<p>In production: Yes</p>
+							{% else %}
+								<p>In production: No</p>
+							{% endif %}
+
+							{% if show['homepage'] %}
+								<p>Homepage: {{ show['homepage'] }}</p>
+							{% endif %}
+						
+					</div>
+				</div>
 			{% endfor %}
 			</div>
 		</div>
 	</div>
 </div>
+
 
 
 # endblock
