@@ -1,0 +1,19 @@
+# extends 'base.html'
+
+
+# block content
+  <div class="page-header">
+    <h1>My Updates</h1>
+  </div>
+
+
+
+		{% for blog_db in blog_db %}
+			<h4>{{ blog_db.title }}</h4>
+			<p>{{ blog_db.body }}</p>
+
+		{% endfor %}
+
+
+
+# endblock

@@ -1,3 +1,4 @@
+
 from wtforms import Form, validators, StringField,TextAreaField
 from flask_wtf import FlaskForm
 from wtforms.validators import DataRequired
@@ -12,6 +13,10 @@ import urllib2
 
 from flask import json
 
+
+
+
+
 from main import app
 
 # https://pythonhosted.org/Flask-Caching/
@@ -25,7 +30,9 @@ class WikiEntryUpdate(FlaskForm):
   title = StringField('Title', validators=[DataRequired()])
   body = TextAreaField('Body', validators=[DataRequired()])
 
-
+class BlogEntryForm(FlaskForm):
+	title = StringField('Title', validators=[DataRequired()])
+	body = TextAreaField('Body', validators=[DataRequired()])
 
 def getAirsToday():
 	data = memcache.get('dailyTV')
@@ -100,7 +107,7 @@ def getSearched(search):
 #         routes
 #=====================================================
 
-@app.route('/shows/<string:searched>', methods=['GET','POST'])
+@app.route('/shows/<string:searched>/', methods=['GET','POST'])
 def show_search(searched):
 	#showsWeek = getAirsWeek()
 	searched = getSearched(searched)
@@ -111,7 +118,7 @@ def show_search(searched):
 															)
 
 
-@app.route('/show/details', methods=['GET','POST'])
+@app.route('/show/details/', methods=['GET','POST'])
 def show_detail():
 	shows = getShowDetails()
 	#shows = 'test test'
@@ -148,7 +155,7 @@ def search_a_show():
 															)
 
 
-@app.route('/shows_today', methods=['GET', 'POST'])
+@app.route('/shows_today/', methods=['GET', 'POST'])
 def shows_today():
 	shows = getAirsToday()
 	head = "Shows Airing Today"
@@ -158,7 +165,7 @@ def shows_today():
 															head = head,
 															)
 
-@app.route('/shows_weekly', methods=['post'])
+@app.route('/shows_weekly/', methods=['post'])
 def shows_weekly():
 	shows = getAirsWeek()
 	head = "Shows Airing Within A Week"
@@ -167,6 +174,33 @@ def shows_weekly():
 															shows = shows,
 															head = head,
 															)
+
+
+# =============================================================
+# ===							BLOG routes 																=
+# =============================================================
+
+@app.route('/blog/')
+def main_blog():
+	blog_db, blog_cursor = model.BlogEntry.get_dbs(order='-created')
+	return flask.render_template('blog.html', html_class='blog-list', blog_db=blog_db)
+
+@app.route('/blog/new/', methods=['GET', 'POST'])
+@auth.admin_required
+def new_blog():
+	form = BlogEntryForm()
+	
+	if form.validate_on_submit():
+		thing = form.title.data
+		flask.flash(thing, category='success')
+		blogs_db = model.BlogEntry(user_key=auth.current_user_key(),title=form.title.data,body=form.body.data,)
+		blogs_db.put()
+		
+		return flask.redirect(flask.url_for('main_blog'))
+
+	return flask.render_template('newblog.html',
+												html_class='new-blog',
+												form = form,)
 
 @app.route('/colorgame/', methods=['GET','POST'])
 def color_game():

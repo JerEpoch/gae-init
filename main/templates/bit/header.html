@@ -18,6 +18,9 @@
         <li class="{{'active' if html_class == 'other-projects'}}">
           <a href="{{ url_for('wiki_site') }}">Other Projects</a>
         </li>
+        <li class="{{ 'active' if html_class == 'blog-list'}}">
+          <a href="{{ url_for('main_blog') }}">My Blog</a>
+        </li>
       </ul>
       <ul class="nav navbar-nav navbar-right">
         # include 'bit/user_menu.html'
