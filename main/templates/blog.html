@@ -4,14 +4,26 @@
 # block content
   <div class="page-header">
     <h1>My Updates</h1>
+    # if current_user.admin
+    	<a href="{{ url_for('new_blog') }}" ><button class="btn btn-default" type="submit">New Entry</button></a>
+    # endif
   </div>
 
 
 
 		{% for blog_db in blog_db %}
-			<h4>{{ blog_db.title }}</h4>
-			<p>{{ blog_db.body }}</p>
-
+      <div class="container">
+        <div class="row">
+          <div class="col-sm-8 blog-main">
+            <div class="blog-header">
+        			<h1 class="blog-post-title">{{ blog_db.title }}</h1>
+              <p id="blog_create">{{blog_db.created|datetime('%m-%d-%y')}}</p>
+              <hr>
+        			<p>{{ blog_db.body }}</p>
+            </div>
+          </div>
+        </div>
+      </div>
 		{% endfor %}
 
 

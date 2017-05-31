@@ -102,6 +102,10 @@ def getSearched(search):
 	except urllib2.URLError:
 			logging.exception('Caught exception fetching url')
 
+@app.template_filter('datetime')
+def datetimeformat(value, format='%H:%M / %d-%m-%Y'):
+    return value.strftime(format)
+
 
 #=====================================================
 #         routes

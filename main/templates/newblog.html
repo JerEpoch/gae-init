@@ -7,13 +7,13 @@
     <h1>New Entry</h1>
   </div>
   <div class="row">
-    <div class="col-md-6">
+    <div class="col-md-8">
       <form method="POST" action=".">
         <fieldset>
           {{form.csrf_token}}
 
           {{forms.text_field(form.title, autofocus=True)}}
-          {{forms.text_field(form.body)}}
+          {{forms.text_field(form.body) | safe}}
 
 
           <button type="submit" class="btn btn-primary btn-block">
