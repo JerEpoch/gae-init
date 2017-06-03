@@ -194,9 +194,8 @@ def main_blog():
 def new_blog():
 	form = BlogEntryForm()
 	
-	if form.validate_on_submit():
-		thing = form.title.data
-		flask.flash(thing, category='success')
+	if form.validate_on_submit(): 
+		flask.flash("Blog entry, " + form.title.data + " ,was created.", category='success')
 		blogs_db = model.BlogEntry(user_key=auth.current_user_key(),title=form.title.data,body=form.body.data,)
 		blogs_db.put()
 		
@@ -205,6 +204,29 @@ def new_blog():
 	return flask.render_template('newblog.html',
 												html_class='new-blog',
 												form = form,)
+
+
+@app.route('/blog/<int:blog_id>/')
+def blog_entry(blog_id):
+	blog_db = model.BlogEntry.get_by_id(blog_id)
+	if not blog_db:
+		flask.abort(404)
+
+	return flask.render_template('blog_view.html', html_class='blog-view',blog=blog_db)
+
+@app.route('/blog/<int:blog_id>/edit', methods=['GET', 'POST'])
+@auth.admin_required
+def edit_blog(blog_id):
+	blog_db = model.BlogEntry.get_by_id(blog_id)
+	if not blog_db:
+		flask.abort(404)
+	form = BlogEntryForm(obj=blog_db)
+
+	return flask.render_template('blog_edit.html', html_class='blog-edit',form=form)
+
+# =============================================================
+# ===							Additional routes 													=
+# =============================================================
 
 @app.route('/colorgame/', methods=['GET','POST'])
 def color_game():

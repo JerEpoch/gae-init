@@ -13,7 +13,7 @@
 				{% endif %}
 				<p id="showOverview">{{ show['overview'] }}</p>
 
-				<button class="btn btn-primary">
+				<button class="btn btn-primary" type="submit">
 					<i class="fa fa-star-o" aria-hidden="true"> Add To Favorites</i>
 				</button>
 				<button class="btn btn-primary detail-btn" type="button" data-toggle="collapse" data-target="#collapse{{loop.index}}" aria-expanded="false" aria-controls="#collapse{{loop.index}}">
@@ -35,7 +35,7 @@
 							{% endif %}
 
 							{% if show['homepage'] %}
-								<p>Homepage: {{ show['homepage'] }}</p>
+								<p>Homepage: <a href="{{ show['homepage'] }}">Visit</a></p>
 							{% endif %}
 						
 					</div>
