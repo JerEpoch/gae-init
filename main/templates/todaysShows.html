@@ -19,6 +19,7 @@
 			    <div id="collapse{{loop.index}}" class="panel-collapse collapse " role="tabpanel" aria-labelledby="{{ show['name'] }}">
 			      <div class="panel-body">
 							{{ show['overview'] }}
+							<p><a href="{{ url_for('show_detail', show=show['name']) }}">Read More</a></p>
 			      </div>
 			    </div>
 			  </div>
