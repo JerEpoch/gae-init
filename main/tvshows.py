@@ -45,6 +45,15 @@ def getAirsToday():
 				logging.exception('Caught exception fetching url')
 
 
+def getSingleShowInfo(id):
+	show = []
+	id = str(id)
+	url = 'https://api.themoviedb.org/3/tv/' + id + '?language=en-US&api_key=3a3628871c75cfc1fa3bcf7b2f9043aa'
+	json_obj = urllib2.urlopen(url)
+	data = json.load(json_obj)
+	show.append(data)
+	return show
+
 def getShowTest(data):
 	stuff = []
 	for show in data:
@@ -118,10 +127,11 @@ def show_search(searched):
 															)
 
 
-@app.route('/shows/details/<string:show>/', methods=['GET','POST'])
-def show_detail(show):
-	tvShow = getSearched(show)
-	shows = getShowDetails(tvShow)
+@app.route('/shows/details/<int:id>/', methods=['GET','POST'])
+def show_detail(id):
+	shows = getSingleShowInfo(id)
+	#tvShow = getSearched(show)
+	#shows = getShowDetails(tvShow)
 	#shows = 'test test'
 	return flask.render_template('details.html',
 																html_class='show_detail',
@@ -167,7 +177,7 @@ def shows_today():
 															head = head,
 															)
 
-@app.route('/shows_weekly/', methods=['post'])
+@app.route('/shows_weekly/', methods=['GET', 'POST'])
 def shows_weekly():
 	shows = getAirsWeek()
 	head = "Shows Airing Within A Week"
