@@ -3,6 +3,7 @@
 # block content
 	<h1>Show Information</h1>
 
+
 {% for show in shows %}
 	<div  class="well">
 		{% if show['poster_path'] %}
@@ -18,9 +19,11 @@
 		{% if show['homepage'] %}
 			<p><a href="{{ show['homepage'] }}">Visit Show's Website</a></p>
 		{% endif %}
-		<button class="btn btn-primary" type="submit">
-			<i class="fa fa-star-o" aria-hidden="true"> Add To Favorites</i>
-		</button>
+		<a href="{{ url_for('fav_show', id=show['id']) }}">
+			<button class="btn btn-primary" type="submit">
+				<i class="fa fa-star-o" aria-hidden="true"> Add To Favorites</i>
+			</button>
+		</a>
 	</div>
 {% endfor %}
 
