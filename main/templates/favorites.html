@@ -4,27 +4,17 @@
 	<h1>Favorites!</h1>
 
 	
-	{{ show }}
-
-	<hr>
-	{{ show.0['show'] }}
-	<hr>
-
-	{{ show.0['show'].0 }}
-
-	<hr>
+	
 
 	{% for show in show %}
 		<div class="well">
-		<h3>{{ show['show'].0.original_name }}</h3>
-		{% if show['show'].0.poster_path %}
-			<img id="poster" src="https://image.tmdb.org/t/p/w300{{ show['show'].0.poster_path }}">
-		{% endif %}
-		<p>{{ show['show'].0.overview }}</p>
+			<img id="poster" src="https://image.tmdb.org/t/p/w300{{ show.showPoster }}">
+			<p>{{ show.showName }}</p>
+			<a href="{{ url_for('show_detail', id=show.showId) }}">
+				<button class="btn btn-primary" type="submit">Read More</button>
+			</a>
 		</div>
 	{% endfor %}
-
-
 
 
 # endblock

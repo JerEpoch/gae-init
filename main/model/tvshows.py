@@ -6,8 +6,10 @@ import model
 
 class tvShows(model.Base):
 	user_key = ndb.KeyProperty(kind=model.User, required=True)
-	#showId = ndb.StringProperty(required=True)
-	show = ndb.PickleProperty(required=True)
+	showId = ndb.StringProperty(required=True)
+	showName = ndb.StringProperty(required=True)
+	showPoster = ndb.StringProperty(required=True)
+	#show = ndb.PickleProperty(required=True)
 
 class BlogEntry(model.Base):
 	user_key = ndb.KeyProperty(kind=model.User, required=True)

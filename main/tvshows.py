@@ -58,7 +58,7 @@ def getSingleShowInfo(id):
 				data = json.load(json_obj)
 				show.append(data)
 				memcache.add(id,show,time=3600)
-				return show
+				return data
 		except urllib2.URLError:
 				logging.exception('Caught exception fetching url')
 
@@ -81,17 +81,13 @@ def getShowDetails(data):
 		id = str(show['id'])
 		name = show['name']
 		url = 'https://api.themoviedb.org/3/tv/' + id + '?language=en-US&api_key=3a3628871c75cfc1fa3bcf7b2f9043aa'
-		memData = memcache.get(name)
-		if memData is not None:
-			return memData
-		else:
-			try:
-					json_obj = urllib2.urlopen(url)
-					data = json.load(json_obj)
-					allShows.append(data)
-			except urllib2.URLError:
-					logging.exception('Caught exception fetching url')
+		json_obj = urllib2.urlopen(url)
+		data = json.load(json_obj)
+		allShows.append(data)
+		
 	return allShows
+
+	
 	
 
 def getAirsWeek():
@@ -187,12 +183,16 @@ def my_favorites():
 def fav_show(id):
 	id = str(id)
 	show  = getSingleShowInfo(id)
+	showPoster = show[0]['poster_path']
+	showName = show[0]['original_name']
 	fav_db = model.tvShows(
 		user_key=auth.current_user_key(),
-		show=show,
+		showId=id,
+		showName=showName,
+		showPoster=showPoster,
 		)
 	fav_db.put()
-	flask.flash('Added!!', category='success')
+	flask.flash("Added to Favorites", category='success')
 	return flask.redirect(flask.url_for('show_detail', id=id))
 
 @app.route('/shows_today/', methods=['GET', 'POST'])
