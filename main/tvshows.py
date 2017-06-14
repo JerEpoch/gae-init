@@ -118,9 +118,26 @@ def getSearched(search):
 	except urllib2.URLError:
 			logging.exception('Caught exception fetching url')
 
+def isFavorited(id):
+	id = str(id)
+	fav_db, fav_cursor = model.tvShows.get_dbs(user_key=auth.current_user_key())
+	# test = []
+	# for shows in fav_db:
+	# 	test.append(shows.showId)
+	# 	for shows in test:
+	# 		if(shows == id):
+	# 			return id
+	# return test
+	for shows in fav_db:
+		if(shows.showId == id):
+			return 'True'
+	return 'False'
+
 @app.template_filter('datetime')
 def datetimeformat(value, format='%H:%M / %d-%m-%Y'):
     return value.strftime(format)
+
+
 
 
 #=====================================================
@@ -142,6 +159,10 @@ def show_search(searched):
 def show_detail(id):
 	shows = getSingleShowInfo(id)
 	back_url = request.args.get('back')
+	if(auth.current_user_id > 0):
+		fav = isFavorited(id)
+	else:
+		fav = 'False'
 
 
 	#tvShow = getSearched(show)
@@ -151,6 +172,7 @@ def show_detail(id):
 																html_class='show_detail',
 																shows = shows,
 																back_url = back_url,
+																fav = fav,
 																)
 
 
@@ -187,7 +209,11 @@ def search_a_show():
 def my_favorites():
 	fav_db, fav_cursor = model.tvShows.get_dbs(user_key=auth.current_user_key())
 
-	return flask.render_template('favorites.html', html_class='my-favorites',show=fav_db)
+	return flask.render_template('favorites.html', 
+																html_class='my-favorites',
+																show=fav_db,
+																back_url = 'my_favorites'
+																)
 
 @app.route("/favorite/<int:id>")
 @auth.login_required

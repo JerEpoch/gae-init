@@ -1,7 +1,6 @@
 # extends 'base.html'
 
 # block content
-
 	<h1>Show Information</h1>
 
 {% for show in shows %}
@@ -21,17 +20,25 @@
 			<p><a href="{{ show['homepage'] }}">Visit Show's Website</a></p>
 		{% endif %}
 		<a href="{{ url_for('fav_show', id=show['id']) }}">
-			<button class="btn btn-primary" type="submit">
-				<i class="fa fa-star-o" aria-hidden="true"> Add To Favorites</i>
-			</button>
+		{% if back_url != 'my_favorites' %}
+			{% if fav == 'False' %}
+				<button class="btn btn-primary" type="submit">
+					<i class="fa fa-star-o" aria-hidden="true"> Add To Favorites</i>
+				</button>
+			{% endif %}
+		{% endif %}
 		</a>
 	</div>
 {% endfor %}
 
 {% if back_url == 'shows_today' %}
 	<a href="{{ url_for('shows_today') }}">Back To Results</a>
-{% else %}
+{% elif back_url == 'shows_weekly' %}
 	<a href="{{ url_for('shows_weekly') }}">Back To Results</a>
+{% elif back_url == 'my_favorites' %}
+	<a href="{{ url_for('my_favorites') }}">Back To Favorites</a>
+{% else %}
+	<a href="{{ url_for('search_a_show') }}">Back To Search</a>
 {% endif %}
 
 		
