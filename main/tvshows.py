@@ -11,13 +11,17 @@ import util
 
 import urllib2
 
-from flask import json
+from flask import json, request
 
 from main import app
 
 # https://pythonhosted.org/Flask-Caching/
 # https://www.themoviedb.org/documentation/api
 # 63639
+
+#flask.request.referer
+# request.args
+# http://flask.pocoo.org/snippets/63/
 
 class SearchShowForm(FlaskForm):
 	name = wtforms.StringField('Name', validators=[DataRequired()])
@@ -48,6 +52,9 @@ def getAirsToday():
 def getSingleShowInfo(id):
 	show = []
 	id = str(id)
+	# url = 'https://api.themoviedb.org/3/tv/' + id + '?language=en-US&api_key=3a3628871c75cfc1fa3bcf7b2f9043aa'
+	# json_obj = urllib2.urlopen(url)
+	# data = json.load(json_obj)
 	data = memcache.get(id)
 	if data is not None:
 		return data
@@ -58,7 +65,7 @@ def getSingleShowInfo(id):
 				data = json.load(json_obj)
 				show.append(data)
 				memcache.add(id,show,time=3600)
-				return data
+				return show
 		except urllib2.URLError:
 				logging.exception('Caught exception fetching url')
 
@@ -134,12 +141,16 @@ def show_search(searched):
 @app.route('/shows/details/<int:id>/', methods=['GET','POST'])
 def show_detail(id):
 	shows = getSingleShowInfo(id)
+	back_url = request.args.get('back')
+
+
 	#tvShow = getSearched(show)
 	#shows = getShowDetails(tvShow)
 	#shows = 'test test'
 	return flask.render_template('details.html',
 																html_class='show_detail',
 																shows = shows,
+																back_url = back_url,
 																)
 
 
@@ -203,6 +214,7 @@ def shows_today():
 															html_class = 'todays-shows',
 															shows = shows,
 															head = head,
+															back_url = 'shows_today'
 															)
 
 @app.route('/shows_weekly/', methods=['GET', 'POST'])
@@ -213,6 +225,7 @@ def shows_weekly():
 															html_class = 'todays-shows',
 															shows = shows,
 															head = head,
+															back_url = 'shows_weekly'
 															)
 
 

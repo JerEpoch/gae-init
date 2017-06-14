@@ -2,6 +2,7 @@
 # import 'macro/forms.html' as forms
 
 # block content
+
 	<div class="container-fluid">
 		<h1>{{ head }}</h1>
 
@@ -19,7 +20,7 @@
 			    <div id="collapse{{loop.index}}" class="panel-collapse collapse " role="tabpanel" aria-labelledby="{{ show['name'] }}">
 			      <div class="panel-body">
 							{{ show['overview'] }}
-							<p><a href="{{ url_for('show_detail', id=show['id']) }}">Read More</a></p>
+							<p><a href="{{ url_for('show_detail', id=show['id'], back=back_url) }}">Read More</a></p>
 			      </div>
 			    </div>
 			  </div>

@@ -15,20 +15,20 @@
 					
 						{{forms.text_field(form.name, autofocus=True)}}
 						<button type="submit" class="btn btn-primary btn-block">
-							Submit
+							Search
 						</button>
 					</fieldset>
 				</form>
 			</div>
 				<div class="col-xs-6 col-md-4">
-				<form action="{{ url_for('shows_today') }}" method="POST">
+				<a href="{{ url_for('shows_today') }}">
 					<button type="submit" id="btn-today" class="btn btn-primary btn-block">
-						Get Shows Airing Today
+						Today's Shows
 					</button>
-				</form>
+				</a>
 				<form action="{{ url_for('shows_weekly') }}" method="POST">
 					<button type="submit" id="btn-week" class="btn btn-primary btn-block">
-						Get Shows Airing Within A Week
+						Weekly Shows
 					</button>
 				</form>
 			</div>

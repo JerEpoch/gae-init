@@ -1,9 +1,11 @@
 # extends 'base.html'
 
 # block content
+
 	<h1>Show Information</h1>
 
 {% for show in shows %}
+
 	<div  class="well">
 		{% if show['poster_path'] %}
 			<img id="poster" src="https://image.tmdb.org/t/p/w300{{ show['poster_path'] }}">
@@ -26,7 +28,11 @@
 	</div>
 {% endfor %}
 
-<a href="{{ url_for('shows_weekly') }}">Back To Results</a>
+{% if back_url == 'shows_today' %}
+	<a href="{{ url_for('shows_today') }}">Back To Results</a>
+{% else %}
+	<a href="{{ url_for('shows_weekly') }}">Back To Results</a>
+{% endif %}
 
 		
 # endblock
