@@ -1,16 +1,21 @@
 # extends 'base.html'
 
 # block content
-	<h1>Favorites!</h1>
+	<h1>My Favorites</h1>
 
 	{% for show in show %}
-		<div class="well">
+	<div class="container">
+		<div class="well fav-well">
 			<img id="poster" src="https://image.tmdb.org/t/p/w300{{ show.showPoster }}">
 			<p>{{ show.showName }}</p>
 			<a href="{{ url_for('show_detail', id=show.showId, back=back_url) }}">
 				<button class="btn btn-primary" type="submit">Read More</button>
 			</a>
+			<a href="{{ url_for('remove_favorite', id=show.showId) }}">
+				<button class="btn btn-warning" type="submit">Remove Favorite</button>
+			</a>
 		</div>
+	</div>
 	{% endfor %}
 
 

@@ -41,12 +41,12 @@ def getAirsToday():
 		return data
 	else:
 		try:
-				json_obj = urllib2.urlopen(url)
-				data = json.load(json_obj)
-				memcache.add('dailyTV', data['results'], time=3600)
-				return data['results']
+			json_obj = urllib2.urlopen(url)
+			data = json.load(json_obj)
+			memcache.add('dailyTV', data['results'], time=3600)
+			return data['results']
 		except urllib2.URLError:
-				logging.exception('Caught exception fetching url')
+			logging.exception('Caught exception fetching url')
 
 
 def getSingleShowInfo(id):
@@ -203,18 +203,18 @@ def search_a_show():
 															form = form,
 															)
 
-
+# Display all favorite shows
 @app.route("/my_favorites/")
 @auth.login_required
 def my_favorites():
 	fav_db, fav_cursor = model.tvShows.get_dbs(user_key=auth.current_user_key())
-
+	todayShows = getAirsToday()
 	return flask.render_template('favorites.html', 
 																html_class='my-favorites',
 																show=fav_db,
 																back_url = 'my_favorites'
 																)
-
+# Add to favorites
 @app.route("/favorite/<int:id>")
 @auth.login_required
 def fav_show(id):
@@ -231,6 +231,13 @@ def fav_show(id):
 	fav_db.put()
 	flask.flash("Added to Favorites", category='success')
 	return flask.redirect(flask.url_for('show_detail', id=id))
+
+# Remove Favorite
+@app.route("/favorite/remove/<int:id>")
+@auth.login_required
+def remove_favorite(id):
+	flask.flash("Removed from favorites.", category='success')
+	return flask.redirect(flask.url_for('my_favorites'))
 
 @app.route('/shows_today/', methods=['GET', 'POST'])
 def shows_today():
