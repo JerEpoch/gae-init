@@ -11,7 +11,7 @@
 			<a href="{{ url_for('show_detail', id=show.showId, back=back_url) }}">
 				<button class="btn btn-primary" type="submit">Read More</button>
 			</a>
-			<a href="{{ url_for('remove_favorite', id=show.showId) }}">
+			<a href="{{ url_for('remove_favorite', id=show.key.id()) }}">
 				<button class="btn btn-warning" type="submit">Remove Favorite</button>
 			</a>
 		</div>

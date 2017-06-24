@@ -236,7 +236,14 @@ def fav_show(id):
 @app.route("/favorite/remove/<int:id>")
 @auth.login_required
 def remove_favorite(id):
-	flask.flash("Removed from favorites.", category='success')
+	favorite_db = model.tvShows.get_by_id(id)
+
+	if not favorite_db or favorite_db.user_key != auth.current_user_key():
+		flask.abort(404)
+	else:
+		favorite_db.key.delete()
+
+		flask.flash("Removed from favorites.", category='success')
 	return flask.redirect(flask.url_for('my_favorites'))
 
 @app.route('/shows_today/', methods=['GET', 'POST'])
