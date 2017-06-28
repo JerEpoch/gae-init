@@ -13,7 +13,9 @@ import urllib2
 
 from flask import json, request
 
+from blog.routes import blog
 from main import app
+
 
 # https://pythonhosted.org/Flask-Caching/
 # https://www.themoviedb.org/documentation/api
@@ -242,7 +244,6 @@ def remove_favorite(id):
 		flask.abort(404)
 	else:
 		favorite_db.key.delete()
-
 		flask.flash("Removed from favorites.", category='success')
 	return flask.redirect(flask.url_for('my_favorites'))
 
@@ -273,49 +274,49 @@ def shows_weekly():
 # ===							BLOG routes 																=
 # =============================================================
 
-@app.route('/blog/')
-def main_blog():
-	blog_db, blog_cursor = model.BlogEntry.get_dbs(order='-created')
-	return flask.render_template('blog.html', html_class='blog-list', blog_db=blog_db)
+# @app.route('/blog/')
+# def main_blog():
+# 	blog_db, blog_cursor = model.BlogEntry.get_dbs(order='-created')
+# 	return flask.render_template('blog.html', html_class='blog-list', blog_db=blog_db)
 
-@app.route('/blog/new/', methods=['GET', 'POST'])
-@auth.admin_required
-def new_blog():
-	form = BlogEntryForm()
+# @app.route('/blog/new/', methods=['GET', 'POST'])
+# @auth.admin_required
+# def new_blog():
+# 	form = BlogEntryForm()
 	
-	if form.validate_on_submit(): 
-		flask.flash("Blog entry, " + form.title.data + " ,was created.", category='success')
-		blogs_db = model.BlogEntry(user_key=auth.current_user_key(),title=form.title.data,body=form.body.data,)
-		blogs_db.put()
+# 	if form.validate_on_submit(): 
+# 		flask.flash("Blog entry, " + form.title.data + ", was created.", category='success')
+# 		blogs_db = model.BlogEntry(user_key=auth.current_user_key(),title=form.title.data,body=form.body.data,)
+# 		blogs_db.put()
 		
-		return flask.redirect(flask.url_for('main_blog'))
+# 		return flask.redirect(flask.url_for('main_blog'))
 
-	return flask.render_template('newblog.html',
-												html_class='new-blog',
-												form = form,)
+# 	return flask.render_template('newblog.html',
+# 												html_class='new-blog',
+# 												form = form,)
 
 
-@app.route('/blog/<int:blog_id>/')
-def blog_entry(blog_id):
-	blog_db = model.BlogEntry.get_by_id(blog_id)
-	if not blog_db:
-		flask.abort(404)
+# @app.route('/blog/<int:blog_id>/')
+# def blog_entry(blog_id):
+# 	blog_db = model.BlogEntry.get_by_id(blog_id)
+# 	if not blog_db:
+# 		flask.abort(404)
 
-	return flask.render_template('blog_view.html', html_class='blog-view',blog=blog_db)
+# 	return flask.render_template('blog_view.html', html_class='blog-view',blog=blog_db)
 
-@app.route('/blog/<int:blog_id>/edit/', methods=['GET', 'POST'])
-@auth.admin_required
-def edit_blog(blog_id):
-	blog_db = model.BlogEntry.get_by_id(blog_id)
-	if not blog_db:
-		flask.abort(404)
-	form = BlogEntryForm(obj=blog_db)
-	if form.validate_on_submit():
-		form.populate_obj(blog_db)
-		blog_db.put()
-		return flask.redirect(flask.url_for('blog_entry', blog_id=blog_db.key.id()))
+# @app.route('/blog/<int:blog_id>/edit/', methods=['GET', 'POST'])
+# @auth.admin_required
+# def edit_blog(blog_id):
+# 	blog_db = model.BlogEntry.get_by_id(blog_id)
+# 	if not blog_db:
+# 		flask.abort(404)
+# 	form = BlogEntryForm(obj=blog_db)
+# 	if form.validate_on_submit():
+# 		form.populate_obj(blog_db)
+# 		blog_db.put()
+# 		return flask.redirect(flask.url_for('blog_entry', blog_id=blog_db.key.id()))
 
-	return flask.render_template('blog_edit.html', html_class='blog-edit',form=form)
+# 	return flask.render_template('blog_edit.html', html_class='blog-edit',form=form)
 
 # =============================================================
 # ===							Additional routes 													=

@@ -6,12 +6,16 @@ import config
 import util
 
 
+
 class GaeRequest(flask.Request):
   trusted_hosts = config.TRUSTED_HOSTS
 
 
 app = flask.Flask(__name__)
 app.config.from_object(config)
+
+
+
 app.request_class = GaeRequest if config.TRUSTED_HOSTS else flask.Request
 
 app.jinja_env.line_statement_prefix = '#'
@@ -23,11 +27,13 @@ app.jinja_env.globals.update(
   update_query_argument=util.update_query_argument,
 )
 
-import auth
+#import auth
 import control
 import model
 import task
 import tvshows
+
+from blog.routes import blog
 
 from api import helpers
 
@@ -44,3 +50,5 @@ if config.DEVELOPMENT:
   except TypeError:
     app.wsgi_app = debug.DebuggedApplication(app.wsgi_app, evalex=True)
   app.testing = False
+
+app.register_blueprint(blog)
