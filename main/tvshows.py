@@ -32,9 +32,9 @@ class WikiEntryUpdate(FlaskForm):
   title = StringField('Title', validators=[DataRequired()])
   body = TextAreaField('Body', validators=[DataRequired()])
 
-class BlogEntryForm(FlaskForm):
-	title = StringField('Title', validators=[DataRequired()])
-	body = TextAreaField('Body', validators=[DataRequired()])
+# class BlogEntryForm(FlaskForm):
+# 	title = StringField('Title', validators=[DataRequired()])
+# 	body = TextAreaField('Body', validators=[DataRequired()])
 
 def getAirsToday():
 	data = memcache.get('dailyTV')
@@ -123,13 +123,6 @@ def getSearched(search):
 def isFavorited(id):
 	id = str(id)
 	fav_db, fav_cursor = model.tvShows.get_dbs(user_key=auth.current_user_key())
-	# test = []
-	# for shows in fav_db:
-	# 	test.append(shows.showId)
-	# 	for shows in test:
-	# 		if(shows == id):
-	# 			return id
-	# return test
 	for shows in fav_db:
 		if(shows.showId == id):
 			return 'True'
@@ -163,9 +156,6 @@ def show_detail(id):
 	back_url = request.args.get('back')
 	if(auth.current_user_id > 0):
 		fav = isFavorited(id)
-	else:
-		fav = 'False'
-
 
 	#tvShow = getSearched(show)
 	#shows = getShowDetails(tvShow)
@@ -210,7 +200,7 @@ def search_a_show():
 @auth.login_required
 def my_favorites():
 	fav_db, fav_cursor = model.tvShows.get_dbs(user_key=auth.current_user_key())
-	todayShows = getAirsToday()
+	#todayShows = getAirsToday()
 	return flask.render_template('favorites.html', 
 																html_class='my-favorites',
 																show=fav_db,
@@ -222,7 +212,9 @@ def my_favorites():
 def fav_show(id):
 	id = str(id)
 	show  = getSingleShowInfo(id)
-	showPoster = show[0]['poster_path']
+	if(show[0]['poster_path']):
+		showPoster = show[0]['poster_path']
+
 	showName = show[0]['original_name']
 	fav_db = model.tvShows(
 		user_key=auth.current_user_key(),
@@ -268,6 +260,24 @@ def shows_weekly():
 															head = head,
 															back_url = 'shows_weekly'
 															)
+
+
+# =============================================================
+# ===							Additional routes 													=
+# =============================================================
+
+@app.route('/colorgame/', methods=['GET','POST'])
+def color_game():
+	return flask.render_template('colorGame.html', html_class='color-game',)
+
+
+@app.route('/other_projects/', methods=['GET', 'POST'])
+def wiki_site():
+	return flask.render_template('projects.html',
+															html_class = 'other-projects',)
+
+
+
 
 
 # =============================================================
@@ -317,18 +327,3 @@ def shows_weekly():
 # 		return flask.redirect(flask.url_for('blog_entry', blog_id=blog_db.key.id()))
 
 # 	return flask.render_template('blog_edit.html', html_class='blog-edit',form=form)
-
-# =============================================================
-# ===							Additional routes 													=
-# =============================================================
-
-@app.route('/colorgame/', methods=['GET','POST'])
-def color_game():
-	return flask.render_template('colorGame.html', html_class='color-game',)
-
-
-@app.route('/other_projects/', methods=['GET', 'POST'])
-def wiki_site():
-	return flask.render_template('projects.html',
-															html_class = 'other-projects',)
-

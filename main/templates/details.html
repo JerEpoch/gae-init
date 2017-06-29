@@ -11,11 +11,11 @@
 		{% endif %}
 		<p>{{ show['overview']}}</p>
 		{% if show['networks'].0 %}
-			<p>{{ show['networks'].0.name }}</p>
+			<p>Network: {{ show['networks'].0.name }}</p>
 		{% endif %}
 
 		<p>Number of Seasons: {{ show['number_of_seasons'] }}</p>
-		<p>Last Air Date: {{ show['last_air_date'] }}</p>
+		<p>Runtime: {{ show['episode_run_time'][0] }} minutes</p>
 		{% if show['homepage'] %}
 			<p><a href="{{ show['homepage'] }}">Visit Show's Website</a></p>
 		{% endif %}

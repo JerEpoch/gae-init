@@ -12,9 +12,6 @@ class BlogEntryForm(FlaskForm):
 	title = StringField('Title', validators=[DataRequired()])
 	body = TextAreaField('Body', validators=[DataRequired()])
 
-@blog.route('/blog/test/')
-def blog_test():
-	return "YOU MADE IT!!"
 
 @blog.route('/blog/')
 def main_blog():
