@@ -1,4 +1,4 @@
-from flask import Blueprint
+from flask import Blueprint, render_template
 import flask
 import model
 from wtforms import Form, validators, StringField,TextAreaField
@@ -40,7 +40,7 @@ def blog_entry(blog_id):
 	if not blog_db:
 		flask.abort(404)
 
-	return flask.render_template('blog_view.html', html_class='blog-view',blog=blog_db)
+	return flask.render_template('blog_view.html', html_class='blog-view',blog_db=blog_db)
 
 @blog.route('/blog/<int:blog_id>/edit/', methods=['GET', 'POST'])
 @auth.admin_required

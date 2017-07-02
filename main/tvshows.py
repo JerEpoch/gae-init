@@ -9,6 +9,7 @@ import auth
 import model
 import util
 
+
 import urllib2
 
 from flask import json, request
@@ -16,6 +17,10 @@ from flask import json, request
 from blog.routes import blog
 from main import app
 
+
+# TO DO
+# Get shows suggestions based on current show
+# Add a comment system for users
 
 # https://pythonhosted.org/Flask-Caching/
 # https://www.themoviedb.org/documentation/api

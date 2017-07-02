@@ -2,13 +2,13 @@
 
 
 # block content
-	<h1>{{ blog.title }}</h1>
+	<h1>{{ blog_db.title }}</h1>
 
-	<p id="blog-body">{{ blog.body|safe }}</p>
+	<p id="blog-body">{{ blog_db.body|safe }}</p>
 
 	<a href="{{ url_for('blog.main_blog') }}">Back</a>
 	# if current_user.admin
-		<p><a href="{{ url_for('blog.edit_blog',blog_id=blog.key.id()) }}">Edit Entry</a></p>
+		<p><a href="{{ url_for('blog.edit_blog',blog_id=blog_db.key.id()) }}">Edit Entry</a></p>
 	# endif
 
 
