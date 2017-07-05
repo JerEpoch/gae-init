@@ -12,6 +12,11 @@ class tvShows(model.Base):
 	favorite = ndb.BooleanProperty()
 	#show = ndb.PickleProperty(required=True)
 
+class UserComments(model.Base):
+	user_key = ndb.KeyProperty(kind=model.User, required=True)
+	title = ndb.StringProperty(required=True)
+	body = ndb.StringProperty(required=True)
+
 class BlogEntry(model.Base):
 	user_key = ndb.KeyProperty(kind=model.User, required=True)
 	

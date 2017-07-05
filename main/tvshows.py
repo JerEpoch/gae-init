@@ -173,17 +173,6 @@ def show_detail(id):
 																)
 
 
-# used for testing purposes
-@app.route('/shows/test', methods=['GET','POST'])
-def show_info():
-	# data = memcache.get('dailyTV')
-	thing = getSearched('star trek')
-	thing2 = getShowDetails(thing)
-	num =getShowTest(thing)
-	return flask.render_template('details.html',
-																html_class='show_info',
-																shows = thing2,
-																)
 
 # route for when a user searches for a show
 @app.route('/search_a_show/', methods=['GET','POST'])
@@ -265,6 +254,16 @@ def shows_weekly():
 															head = head,
 															back_url = 'shows_weekly'
 															)
+
+# used for testing purposes
+@app.route('/shows/test', methods=['GET','POST'])
+def show_info():
+	shows = getAirsToday()
+	return flask.render_template('testing.html',
+																html_class='show_info',
+																shows=shows,
+																)
+
 
 
 # =============================================================

@@ -1,13 +1,11 @@
-
-
 # extends 'base.html'
 
 <script type="text/javascript" src="{{ url_for('static', filename='floatButton.js') }}"></script>
 # block content
 
-
+<body id="test">
 <div class="container" style="width:800px; margin:0 auto;" >
-	<h1>{{ head }}</h1>
+	<h1>Testing page!!</h1>
 </div>
 
 {% for show in shows %}
@@ -20,5 +18,5 @@
 	</div>
 {% endfor %}
 <button onclick="topFunction()" id="myBtn" title="Go to top">Top</button>
-
+</body>
 # endblock

@@ -1,9 +1,10 @@
 # extends 'base.html'
 # import 'macro/forms.html' as forms
-# block content
 
+
+# block content
   <div class="page-header">
-    <h1>Edit Entry</h1>
+    <h1>New Entry</h1>
   </div>
   <div class="row">
     <div class="col-md-8">
@@ -12,16 +13,14 @@
           {{form.csrf_token}}
 
           {{forms.text_field(form.title, autofocus=True)}}
-          {{forms.text_field(form.body)|safe}}
+          {{forms.text_field(form.body, rows=8)|safe}}
 
 
           <button type="submit" class="btn btn-primary btn-block">
-            Update Entry
+            Create Entry
           </button>
         </fieldset>
       </form>
     </div>
   </div>
-
-
 # endblock
