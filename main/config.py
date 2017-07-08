@@ -31,6 +31,7 @@ else:
 
   CONFIG_DB = model.Config.get_master_db()
   SECRET_KEY = CONFIG_DB.flask_secret_key.encode('ascii')
+  TMDB_API_KEY = CONFIG_DB.API_KEY
   RECAPTCHA_PUBLIC_KEY = CONFIG_DB.recaptcha_public_key
   RECAPTCHA_PRIVATE_KEY = CONFIG_DB.recaptcha_private_key
   RECAPTCHA_LIMIT = 8

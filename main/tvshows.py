@@ -16,7 +16,7 @@ from flask import json, request
 
 from blog.routes import blog
 from main import app
-
+from config import TMDB_API_KEY
 
 # TO DO
 # Get shows suggestions based on current show
@@ -44,7 +44,8 @@ class SearchShowForm(FlaskForm):
 def getAirsToday():
 	data = memcache.get('dailyTV')
 	
-	url = "https://api.themoviedb.org/3/tv/airing_today?page=1&language=en-US&api_key=3a3628871c75cfc1fa3bcf7b2f9043aa"
+	
+	url = "https://api.themoviedb.org/3/tv/airing_today?page=1&language=en-US&api_key=" + TMDB_API_KEY
 	if data:
 		return data
 	else:
@@ -70,33 +71,46 @@ def getAirsToday():
 def getSingleShowInfo(id):
 	show = []
 	id = str(id)
-	# url = 'https://api.themoviedb.org/3/tv/' + id + '?language=en-US&api_key=3a3628871c75cfc1fa3bcf7b2f9043aa'
-	# json_obj = urllib2.urlopen(url)
-	# data = json.load(json_obj)
+	
 	data = memcache.get(id)
 	if data is not None:
 		return data
 	else:
 		try:
-				url = 'https://api.themoviedb.org/3/tv/' + id + '?language=en-US&api_key=3a3628871c75cfc1fa3bcf7b2f9043aa'
-				json_obj = urllib2.urlopen(url)
-				data = json.load(json_obj)
-				show.append(data)
-				memcache.add(id,show,time=3600)
-				return show
+				url = 'https://api.themoviedb.org/3/tv/' + id + '?language=en-US&api_key=' + TMDB_API_KEY
+				result = urlfetch(url)
+				if result.status_code == 200:
+					data = json.load(result.content)
+					if len(data['results']) > 0:
+						show.append(data)
+						memcache.add(id,show,time=3600)
+						return show
+					else:
+						return None
 		except urllib2.URLError:
 				logging.exception('Caught exception fetching url')
 
-def getShowTest(data):
-	stuff = []
-	for show in data:
-		id = str(show['id'])
-		name = show['name']
-		url = 'https://api.themoviedb.org/3/tv/' + id + '?language=en-US&api_key=3a3628871c75cfc1fa3bcf7b2f9043aa'
-		json_obj = urllib2.urlopen(url)
-		data = json.load(json_obj)
-		stuff.append(data)
-	return stuff
+def getShowTest(id):
+	show = []
+	id = str(id)
+	
+	data = memcache.get(id)
+	if data is not None:
+		return data
+	else:
+		try:
+				url = 'https://api.themoviedb.org/3/tv/' + id + '?language=en-US&api_key=' + TMDB_API_KEY
+				result = urlfetch(url)
+				if result.status_code == 200:
+					data = json.load(result.content)
+					if len(data['results']) > 0:
+						show.append(data)
+						memcache.add(id,show,time=3600)
+						return show
+					else:
+						return None
+		except urllib2.URLError:
+				logging.exception('Caught exception fetching url')
 
 def getShowDetails(data):
 	# get a detail search for the show id and store it
@@ -105,7 +119,7 @@ def getShowDetails(data):
 	for show in data:
 		id = str(show['id'])
 		name = show['name']
-		url = 'https://api.themoviedb.org/3/tv/' + id + '?language=en-US&api_key=3a3628871c75cfc1fa3bcf7b2f9043aa'
+		url = 'https://api.themoviedb.org/3/tv/' + id + '?language=en-US&api_key=' + TMDB_API_KEY
 		json_obj = urllib2.urlopen(url)
 		data = json.load(json_obj)
 		allShows.append(data)
@@ -116,7 +130,7 @@ def getShowDetails(data):
 
 def getAirsWeek():
 	data = memcache.get('weeklyTV')
-	url = 'https://api.themoviedb.org/3/tv/on_the_air?page=1&language=en-US&api_key=3a3628871c75cfc1fa3bcf7b2f9043aa'
+	url = 'https://api.themoviedb.org/3/tv/on_the_air?page=1&language=en-US&api_key=' + TMDB_API_KEY
 	if data is not None:
 		return data
 	else:
@@ -127,7 +141,7 @@ def getAirsWeek():
 
 def getSearched(search):
 	search = search.replace(' ', '%20')
-	url = 'https://api.themoviedb.org/3/search/tv?page=1&query=' + search +'&language=en-US&api_key=3a3628871c75cfc1fa3bcf7b2f9043aa'
+	url = 'https://api.themoviedb.org/3/search/tv?page=1&query=' + search +'&language=en-US&api_key=' + TMDB_API_KEY
 	try:
 			json_obj = urllib2.urlopen(url)
 			data = json.load(json_obj)
@@ -161,11 +175,14 @@ def datetimeformat(value, format='%H:%M / %d-%m-%Y'):
 def show_search(searched):
 	#showsWeek = getAirsWeek()
 	show_info = getSearched(searched)
-	details = getShowDetails(show_info)
-	return flask.render_template('searched.html',
-															html_class='searched',
-															details = details,
-															)
+	if show_info:
+		details = getShowDetails(show_info)
+		return flask.render_template('searched.html',
+																html_class='searched',
+																details = details,
+																)
+	else:
+		return flask.render_template('search_error.html', html_class='search-error')
 
 
 @app.route('/shows/details/<int:id>/', methods=['GET','POST'])
@@ -268,14 +285,20 @@ def shows_weekly():
 															back_url = 'shows_weekly'
 															)
 
+#error route
+@app.route('/tvshow/error/')
+def show_error():
+	return flask.render_template('search_error.html', html_class='search-error',)
+
 # used for testing purposes
 @app.route('/shows/test', methods=['GET','POST'])
 def show_info():
-	shows = getAirsToday()
-	return flask.render_template('testing.html',
-																html_class='show_info',
-																shows=shows,
-																)
+	show_info = getSearched("asd;kfjsdlfjk")
+	if show_info:
+		flask.flash(show_info)
+		return flask.render_template('testing.html', html_class='blah',)
+	else:
+		return flask.redirect(flask.url_for('show_error'))
 
 
 
