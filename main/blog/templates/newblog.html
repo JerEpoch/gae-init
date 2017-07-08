@@ -12,8 +12,8 @@
         <fieldset>
           {{form.csrf_token}}
 
-          {{forms.text_field(form.title, autofocus=True)}}
-          {{forms.text_field(form.body, rows=8)|safe}}
+          {{forms.text_field(form.title, autofocus=True, placeholder="Title")}}
+          {{forms.text_field(form.body, rows=8, placeholder="Post")|safe}}
 
 
           <button type="submit" class="btn btn-primary btn-block">

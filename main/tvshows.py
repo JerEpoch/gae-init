@@ -2,14 +2,14 @@
 from wtforms import Form, validators, StringField,TextAreaField
 from flask_wtf import FlaskForm
 from wtforms.validators import DataRequired
-from google.appengine.api import memcache
+from google.appengine.api import memcache, urlfetch
 import wtforms
 import flask
 import auth
 import model
 import util
 
-
+import requests
 import urllib2
 
 from flask import json, request
@@ -31,11 +31,11 @@ from main import app
 # http://flask.pocoo.org/snippets/63/
 
 class SearchShowForm(FlaskForm):
-	name = wtforms.StringField('Name', validators=[DataRequired()])
+	name = wtforms.StringField('',validators=[DataRequired()])
 
-class WikiEntryUpdate(FlaskForm):
-  title = StringField('Title', validators=[DataRequired()])
-  body = TextAreaField('Body', validators=[DataRequired()])
+# class WikiEntryUpdate(FlaskForm):
+#   title = StringField('', validators=[DataRequired()])
+#   body = TextAreaField('', validators=[DataRequired()])
 
 # class BlogEntryForm(FlaskForm):
 # 	title = StringField('Title', validators=[DataRequired()])
@@ -43,17 +43,28 @@ class WikiEntryUpdate(FlaskForm):
 
 def getAirsToday():
 	data = memcache.get('dailyTV')
+	
 	url = "https://api.themoviedb.org/3/tv/airing_today?page=1&language=en-US&api_key=3a3628871c75cfc1fa3bcf7b2f9043aa"
-	if data is not None:
+	if data:
 		return data
 	else:
-		try:
-			json_obj = urllib2.urlopen(url)
-			data = json.load(json_obj)
+		result = urlfetch.fetch(url)
+		if result.status_code == 200:
+			data = json.loads(result.content)
 			memcache.add('dailyTV', data['results'], time=3600)
 			return data['results']
-		except urllib2.URLError:
-			logging.exception('Caught exception fetching url')
+	# if data is not None:
+	# 	return data
+	# else:
+	# 	try:
+	# 		json_obj = urllib2.urlopen(url)
+	# 		data = json.load(json_obj)
+
+	# 		memcache.add('dailyTV', data['results'], time=3600)
+	# 		return data['results']
+			
+	# 	except urllib2.URLError:
+	# 		logging.exception('Caught exception fetching url')
 
 
 def getSingleShowInfo(id):
@@ -102,7 +113,6 @@ def getShowDetails(data):
 	return allShows
 
 	
-	
 
 def getAirsWeek():
 	data = memcache.get('weeklyTV')
@@ -121,7 +131,10 @@ def getSearched(search):
 	try:
 			json_obj = urllib2.urlopen(url)
 			data = json.load(json_obj)
-			return data['results']
+			if data:
+				return data['results']
+			else:
+				return flask.url_for(search_a_show())
 	except urllib2.URLError:
 			logging.exception('Caught exception fetching url')
 
@@ -147,8 +160,8 @@ def datetimeformat(value, format='%H:%M / %d-%m-%Y'):
 @app.route('/shows/<string:searched>/', methods=['GET','POST'])
 def show_search(searched):
 	#showsWeek = getAirsWeek()
-	searched = getSearched(searched)
-	details = getShowDetails(searched)
+	show_info = getSearched(searched)
+	details = getShowDetails(show_info)
 	return flask.render_template('searched.html',
 															html_class='searched',
 															details = details,

@@ -9,8 +9,8 @@ import auth
 blog = Blueprint('blog', __name__, template_folder='templates')
 
 class BlogEntryForm(FlaskForm):
-	title = StringField('Title', validators=[DataRequired()])
-	body = TextAreaField('Body', validators=[DataRequired()])
+	title = StringField('', validators=[DataRequired()])
+	body = TextAreaField('', validators=[DataRequired()])
 
 
 @blog.route('/blog/')
