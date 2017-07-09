@@ -33,13 +33,6 @@ from config import TMDB_API_KEY
 class SearchShowForm(FlaskForm):
 	name = wtforms.StringField('',validators=[DataRequired()])
 
-# class WikiEntryUpdate(FlaskForm):
-#   title = StringField('', validators=[DataRequired()])
-#   body = TextAreaField('', validators=[DataRequired()])
-
-# class BlogEntryForm(FlaskForm):
-# 	title = StringField('Title', validators=[DataRequired()])
-# 	body = TextAreaField('Body', validators=[DataRequired()])
 
 def getAirsToday():
 	data = memcache.get('dailyTV')
@@ -53,7 +46,14 @@ def getAirsToday():
 		if result.status_code == 200:
 			data = json.loads(result.content)
 			memcache.add('dailyTV', data['results'], time=3600)
-			return data['results']
+			
+			if len(data['results']) > 0:
+				show.append(data)
+				memcache.add(id,show,time=3600)
+				return show
+			else:
+				return None
+
 	# if data is not None:
 	# 	return data
 	# else:
@@ -78,10 +78,10 @@ def getSingleShowInfo(id):
 	else:
 		try:
 				url = 'https://api.themoviedb.org/3/tv/' + id + '?language=en-US&api_key=' + TMDB_API_KEY
-				result = urlfetch(url)
+				result = urlfetch.fetch(url)
 				if result.status_code == 200:
-					data = json.load(result.content)
-					if len(data['results']) > 0:
+					data = json.loads(result.content)
+					if len(data) > 0:
 						show.append(data)
 						memcache.add(id,show,time=3600)
 						return show
@@ -90,6 +90,7 @@ def getSingleShowInfo(id):
 		except urllib2.URLError:
 				logging.exception('Caught exception fetching url')
 
+# used for testing stuff
 def getShowTest(id):
 	show = []
 	id = str(id)
@@ -120,10 +121,10 @@ def getShowDetails(data):
 		id = str(show['id'])
 		name = show['name']
 		url = 'https://api.themoviedb.org/3/tv/' + id + '?language=en-US&api_key=' + TMDB_API_KEY
-		json_obj = urllib2.urlopen(url)
-		data = json.load(json_obj)
-		allShows.append(data)
-		
+		result = urlfetch.fetch(url)
+		if result.status_code == 200:
+			data = json.loads(result.content)
+			allShows.append(data)		
 	return allShows
 
 	
@@ -134,21 +135,25 @@ def getAirsWeek():
 	if data is not None:
 		return data
 	else:
-		json_obj = urllib2.urlopen(url)
-		data = json.load(json_obj)
-		memcache.add('weeklyTV', data['results'], time=3600)
-		return data['results']
+		result = urlfetch.fetch(url)
+		if result.status_code == 200:
+			data = json.loads(result.content)
+			if len(data['results']) > 0:
+				memcache.add('weeklyTV', data['results'], time=3600)
+				return data['results']
+			else:
+				return None
 
 def getSearched(search):
 	search = search.replace(' ', '%20')
 	url = 'https://api.themoviedb.org/3/search/tv?page=1&query=' + search +'&language=en-US&api_key=' + TMDB_API_KEY
 	try:
-			json_obj = urllib2.urlopen(url)
-			data = json.load(json_obj)
-			if data:
+			result = urlfetch.fetch(url)
+			if result.status_code == 200:
+				data = json.loads(result.content)
 				return data['results']
 			else:
-				return flask.url_for(search_a_show())
+				return None
 	except urllib2.URLError:
 			logging.exception('Caught exception fetching url')
 
@@ -182,7 +187,8 @@ def show_search(searched):
 																details = details,
 																)
 	else:
-		return flask.render_template('search_error.html', html_class='search-error')
+		errors = "We could not find the show " + searched + ". Please try searching again."
+		return flask.render_template('search_error.html', html_class='search-error', errors=errors)
 
 
 @app.route('/shows/details/<int:id>/', methods=['GET','POST'])
@@ -266,29 +272,38 @@ def remove_favorite(id):
 @app.route('/shows_today/', methods=['GET', 'POST'])
 def shows_today():
 	shows = getAirsToday()
-	head = "Shows Airing Today"
-	return flask.render_template('todaysShows.html',
-															html_class = 'todays-shows',
-															shows = shows,
-															head = head,
-															back_url = 'shows_today'
-															)
+	if shows:
+		head = "Shows Airing Today"
+		return flask.render_template('todaysShows.html',
+																html_class = 'todays-shows',
+																shows = shows,
+																head = head,
+																back_url = 'shows_today'
+																)
+	else:
+		errors = "Something went wrong fetching the current day's shows. Please try again later."
+		return flask.render_template('search_error.html', html_class='search-error', errors=errors)
 
 @app.route('/shows_weekly/', methods=['GET', 'POST'])
 def shows_weekly():
 	shows = getAirsWeek()
-	head = "Shows Airing Within A Week"
-	return flask.render_template('todaysShows.html',
-															html_class = 'todays-shows',
-															shows = shows,
-															head = head,
-															back_url = 'shows_weekly'
-															)
+	if shows:
+		head = "Shows Airing Within A Week"
+		return flask.render_template('todaysShows.html',
+																html_class = 'todays-shows',
+																shows = shows,
+																head = head,
+																back_url = 'shows_weekly'
+																)
+	else:
+		errors = "Something went wrong getting the weekly shows. Please try again later."
+		return flask.render_template('search_error.html', html_class='search-error', errors=errors)
 
 #error route
-@app.route('/tvshow/error/')
-def show_error():
-	return flask.render_template('search_error.html', html_class='search-error',)
+# most likely do NOT need. NOTE: DELETE LATER
+# @app.route('/tvshow/error/')
+# def show_error():
+# 	return flask.render_template('search_error.html', html_class='search-error',)
 
 # used for testing purposes
 @app.route('/shows/test', methods=['GET','POST'])
