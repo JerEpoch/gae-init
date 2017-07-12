@@ -36,7 +36,7 @@ class SearchShowForm(FlaskForm):
 
 def getAirsToday():
 	data = memcache.get('dailyTV')
-	
+	show = []
 	
 	url = "https://api.themoviedb.org/3/tv/airing_today?page=1&language=en-US&api_key=" + TMDB_API_KEY
 	if data:
@@ -87,7 +87,7 @@ def getSingleShowInfo(id):
 						return show
 					else:
 						return None
-		except urllib2.URLError:
+		except urlfetch.Error:
 				logging.exception('Caught exception fetching url')
 
 # used for testing stuff
@@ -110,7 +110,7 @@ def getShowTest(id):
 						return show
 					else:
 						return None
-		except urllib2.URLError:
+		except urlfetch.Error:
 				logging.exception('Caught exception fetching url')
 
 def getShowDetails(data):
@@ -154,7 +154,7 @@ def getSearched(search):
 				return data['results']
 			else:
 				return None
-	except urllib2.URLError:
+	except urlfetch.Error:
 			logging.exception('Caught exception fetching url')
 
 def isFavorited(id):
