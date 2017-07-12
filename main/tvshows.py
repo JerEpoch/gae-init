@@ -36,21 +36,20 @@ class SearchShowForm(FlaskForm):
 
 def getAirsToday():
 	data = memcache.get('dailyTV')
-	show = []
+	
 	
 	url = "https://api.themoviedb.org/3/tv/airing_today?page=1&language=en-US&api_key=" + TMDB_API_KEY
-	if data:
+	if data is not None:
 		return data
 	else:
 		result = urlfetch.fetch(url)
 		if result.status_code == 200:
 			data = json.loads(result.content)
-			memcache.add('dailyTV', data['results'], time=3600)
 			
 			if len(data['results']) > 0:
-				show.append(data)
-				memcache.add(id,show,time=3600)
-				return show
+				memcache.add('dailyTV', data['results'], time=3600)
+				
+				return data['results']
 			else:
 				return None
 

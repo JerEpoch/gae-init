@@ -14,8 +14,10 @@ class tvShows(model.Base):
 
 class UserComments(model.Base):
 	user_key = ndb.KeyProperty(kind=model.User, required=True)
+	showId = ndb.StringProperty(required=True)
 	title = ndb.StringProperty(required=True)
 	body = ndb.StringProperty(required=True)
+	created = ndb.DateTimeProperty(auto_now = True)
 
 class BlogEntry(model.Base):
 	user_key = ndb.KeyProperty(kind=model.User, required=True)
