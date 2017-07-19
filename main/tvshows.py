@@ -33,6 +33,9 @@ from config import TMDB_API_KEY
 class SearchShowForm(FlaskForm):
 	name = wtforms.StringField('',validators=[DataRequired()])
 
+class NewComment(FlaskForm):
+	body = TextAreaField('', validators=[DataRequired()])
+
 
 def getAirsToday():
 	data = memcache.get('dailyTV')
@@ -48,7 +51,6 @@ def getAirsToday():
 			
 			if len(data['results']) > 0:
 				memcache.add('dailyTV', data['results'], time=3600)
-				
 				return data['results']
 			else:
 				return None
@@ -315,7 +317,27 @@ def show_info():
 		return flask.redirect(flask.url_for('show_error'))
 
 
+@app.route('/comment/<int:showid>/new/', methods=['GET','POST'])
+def new_comment(showid):
+	form = NewComment()
+	showid=str(showid)
 
+	if form.validate_on_submit():
+		
+		comment_db = model.UserComments(user_key=auth.current_user_key(),showId=showid,body=form.body.data)
+		if comment_db.put():
+			flask.flash("Comment Created", category='success')
+	return flask.render_template('new_comment.html', html_class='new-comment', form=form)
+
+@app.route('/comment/<int:showid>/show/')
+def show_comments(showid):
+	showid = str(showid)
+	comment_db = model.UserComments.query().filter(model.UserComments.showId.IN([showid]))
+
+	
+
+	return flask.render_template('test_comments.html', comment_db=comment_db, html_class='comments')
+	
 # =============================================================
 # ===							Additional routes 													=
 # =============================================================

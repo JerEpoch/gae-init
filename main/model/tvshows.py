@@ -2,7 +2,11 @@ from google.appengine.ext import ndb
 import model
 
   
-
+class UserComments(model.Base):
+	user_key = ndb.KeyProperty(kind=model.User, required=True)
+	showId = ndb.StringProperty(required=True)
+	body = ndb.StringProperty(required=True)
+	created = ndb.DateTimeProperty(auto_now = True)
 
 class tvShows(model.Base):
 	user_key = ndb.KeyProperty(kind=model.User, required=True)
@@ -10,14 +14,10 @@ class tvShows(model.Base):
 	showName = ndb.StringProperty(required=True)
 	showPoster = ndb.StringProperty()
 	favorite = ndb.BooleanProperty()
+	
 	#show = ndb.PickleProperty(required=True)
 
-class UserComments(model.Base):
-	user_key = ndb.KeyProperty(kind=model.User, required=True)
-	showId = ndb.StringProperty(required=True)
-	title = ndb.StringProperty(required=True)
-	body = ndb.StringProperty(required=True)
-	created = ndb.DateTimeProperty(auto_now = True)
+
 
 class BlogEntry(model.Base):
 	user_key = ndb.KeyProperty(kind=model.User, required=True)
