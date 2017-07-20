@@ -1,6 +1,7 @@
 # coding: utf-8
 
 import flask
+import flask_debugtoolbar
 
 import config
 import util
@@ -27,6 +28,7 @@ app.jinja_env.globals.update(
   update_query_argument=util.update_query_argument,
 )
 
+toolbar = flask_debugtoolbar.DebugToolbarExtension(app)
 #import auth
 import control
 import model
@@ -52,3 +54,6 @@ if config.DEVELOPMENT:
   app.testing = False
 
 app.register_blueprint(blog)
+
+
+

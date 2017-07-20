@@ -16,6 +16,7 @@ from flask import json, request
 
 from blog.routes import blog
 from main import app
+
 from config import TMDB_API_KEY
 
 # TO DO
@@ -351,7 +352,6 @@ def color_game():
 def wiki_site():
 	return flask.render_template('projects.html',
 															html_class = 'other-projects',)
-
 
 
 

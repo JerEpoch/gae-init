@@ -40,3 +40,16 @@ else:
 DEFAULT_DB_LIMIT = 64
 SIGNIN_RETRY_LIMIT = 4
 TAG_SEPARATOR = ' '
+
+
+DEBUG_TB_ENABLED = DEVELOPMENT
+DEBUG_TB_INTERCEPT_REDIRECTS = False
+DEBUG_TB_PANELS = [
+    'flask_debugtoolbar.panels.timer.TimerDebugPanel',
+    'flask_debugtoolbar.panels.headers.HeaderDebugPanel',
+    'flask_debugtoolbar.panels.request_vars.RequestVarsDebugPanel',
+    'flask_debugtoolbar.panels.template.TemplateDebugPanel',
+    'flask_debugtoolbar.panels.logger.LoggingPanel',
+    'flask_debugtoolbar.panels.profiler.ProfilerDebugPanel',
+    'flask_debugtoolbar.panels.route_list.RouteListDebugPanel',
+  ]
