@@ -5,41 +5,48 @@
 
 {% for show in shows %}
 
-	<div  class="well">
-		{% if show['poster_path'] %}
-			<img id="poster" src="https://image.tmdb.org/t/p/w300{{ show['poster_path'] }}">
-		{% endif %}
-		<p>{{ show['overview']}}</p>
-		{% if show['networks'].0 %}
-			<p>Network: {{ show['networks'].0.name }}</p>
-		{% endif %}
-
-		<p>Number of Seasons: {{ show['number_of_seasons'] }}</p>
-		<p>Runtime: {{ show['episode_run_time'][0] }} minutes</p>
-		{% if show['homepage'] %}
-			<p><a href="{{ show['homepage'] }}">Visit Show's Website</a></p>
-		{% endif %}
-		<a href="{{ url_for('fav_show', id=show['id']) }}">
-		{% if back_url != 'my_favorites' %}
-			{% if fav == 'False' %}
-				<button class="btn btn-primary" type="submit">
-					<i class="fa fa-star-o" aria-hidden="true"> Add To Favorites</i>
-				</button>
+	<div class="container">
+		<div  class="well">
+			{% if show['poster_path'] %}
+				<img id="poster" src="https://image.tmdb.org/t/p/w300{{ show['poster_path'] }}">
 			{% endif %}
-		{% endif %}
-		</a>
-	</div>
-{% endfor %}
+			<p>{{ show['overview']}}</p>
+			{% if show['networks'].0 %}
+				<p>Network: {{ show['networks'].0.name }}</p>
+			{% endif %}
 
-{% if back_url == 'shows_today' %}
-	<a href="{{ url_for('shows_today') }}">Back To Results</a>
-{% elif back_url == 'shows_weekly' %}
-	<a href="{{ url_for('shows_weekly') }}">Back To Results</a>
-{% elif back_url == 'my_favorites' %}
-	<a href="{{ url_for('my_favorites') }}">Back To Favorites</a>
-{% else %}
-	<a href="{{ url_for('search_a_show') }}">Back To Search</a>
-{% endif %}
+			<p>Number of Seasons: {{ show['number_of_seasons'] }}</p>
+			<p>Runtime: {{ show['episode_run_time'][0] }} minutes</p>
+			{% if show['homepage'] %}
+				<p><a href="{{ show['homepage'] }}">Visit Show's Website</a></p>
+			{% endif %}
+			<a href="{{ url_for('fav_show', id=show['id']) }}">
+			{% if back_url != 'my_favorites' %}
+				{% if fav == 'False' %}
+					<button class="btn btn-primary" type="submit">
+						<i class="fa fa-star-o" aria-hidden="true"> Add To Favorites</i>
+					</button>
+				{% endif %}
+			{% endif %}
+			</a>
+		</div>
+	{% endfor %}
+
+	{% if back_url == 'shows_today' %}
+		<a href="{{ url_for('shows_today') }}">Back To Results</a>
+	{% elif back_url == 'shows_weekly' %}
+		<a href="{{ url_for('shows_weekly') }}">Back To Results</a>
+	{% elif back_url == 'my_favorites' %}
+		<a href="{{ url_for('my_favorites') }}">Back To Favorites</a>
+	{% else %}
+		<a href="{{ url_for('search_a_show') }}">Back To Search</a>
+	{% endif %}
+
+	{% include 'new_comment.html' %}
+	{% include 'comments.html' %}
+	
+
+</div>
 
 		
 # endblock

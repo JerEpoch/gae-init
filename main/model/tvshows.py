@@ -6,6 +6,7 @@ class UserComments(model.Base):
 	user_key = ndb.KeyProperty(kind=model.User, required=True)
 	showId = ndb.StringProperty(required=True)
 	body = ndb.StringProperty(required=True)
+	creator = ndb.StringProperty(required=True)
 	created = ndb.DateTimeProperty(auto_now = True)
 
 class tvShows(model.Base):

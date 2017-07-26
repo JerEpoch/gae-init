@@ -1,0 +1,12 @@
+
+
+# block content
+<h1>User Comments</h1>
+{% for comments in comments_db %}
+	<div class='well'>
+		<p>{{comments.body}}</p>
+		<p>Created By: {{comments.creator}}</p>
+	</div>
+{% endfor %}
+
+# endblock

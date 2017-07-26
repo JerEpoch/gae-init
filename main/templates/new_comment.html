@@ -1,21 +1,21 @@
-# extends 'base.html'
+
 # import 'macro/forms.html' as forms
 
 
 # block content
-<h1>Comments</h1>
+	# if current_user.id != 0
+	<div class="container">
+		<form method="POST" action=".">
+			<fieldset>
+				{{form.csrf_token}}
+				
+				{{forms.text_field(form.body, rows=8, placeholder="Leave a comment.")|safe}}
+		     <button type="submit" class="btn btn-primary btn-block">
+	     		Submit Comment
+	      </button>
+			</fieldset>
+		</form>
 
-<div class="container">
-	<form method="POST" action=".">
-		<fieldset>
-			{{form.csrf_token}}
-			
-			{{forms.text_field(form.body, rows=8)|safe}}
-	     <button type="submit" class="btn btn-primary btn-block">
-     		Create Entry
-      </button>
-		</fieldset>
-	</form>
-
-</div>
+	</div>
+	# endif
 # endblock

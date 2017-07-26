@@ -1,7 +1,7 @@
 
 from wtforms import Form, validators, StringField,TextAreaField
 from flask_wtf import FlaskForm
-from wtforms.validators import DataRequired
+from wtforms.validators import DataRequired, Length
 from google.appengine.api import memcache, urlfetch
 import wtforms
 import flask
@@ -32,10 +32,10 @@ from config import TMDB_API_KEY
 # http://flask.pocoo.org/snippets/63/
 
 class SearchShowForm(FlaskForm):
-	name = wtforms.StringField('',validators=[DataRequired()])
+	name = wtforms.StringField('',validators=[DataRequired(), Length(1,100)])
 
 class NewComment(FlaskForm):
-	body = TextAreaField('', validators=[DataRequired()])
+	body = TextAreaField('', validators=[DataRequired(), Length(5, 1500)])
 
 
 def getAirsToday():
@@ -195,19 +195,34 @@ def show_search(searched):
 
 @app.route('/shows/details/<int:id>/', methods=['GET','POST'])
 def show_detail(id):
+	form = NewComment()
 	shows = getSingleShowInfo(id)
 	back_url = request.args.get('back')
+	showid=str(id)
+
 	if(auth.current_user_id > 0):
 		fav = isFavorited(id)
+
+	comments_db, comment_cursor = model.UserComments.get_dbs(showId=showid,order='-created')
 
 	#tvShow = getSearched(show)
 	#shows = getShowDetails(tvShow)
 	#shows = 'test test'
+
+	if form.validate_on_submit():
+		# flask.flash(auth.current_user_db().name)
+		comment_db = model.UserComments(user_key=auth.current_user_key(),showId=showid,body=form.body.data, creator=auth.current_user_db().name)
+		if comment_db.put():
+			flask.flash("Comment Created", category='success')
+			return flask.redirect(flask.url_for('show_detail', id=id))
+
 	return flask.render_template('details.html',
 																html_class='show_detail',
 																shows = shows,
 																back_url = back_url,
 																fav = fav,
+																form=form,
+																comments_db=comments_db,
 																)
 
 
@@ -318,26 +333,26 @@ def show_info():
 		return flask.redirect(flask.url_for('show_error'))
 
 
-@app.route('/comment/<int:showid>/new/', methods=['GET','POST'])
-def new_comment(showid):
-	form = NewComment()
-	showid=str(showid)
+# @app.route('/comment/<int:showid>/new/', methods=['GET','POST'])
+# def new_comment(showid):
+# 	form = NewComment()
+# 	showid=str(showid)
 
-	if form.validate_on_submit():
+# 	if form.validate_on_submit():
 		
-		comment_db = model.UserComments(user_key=auth.current_user_key(),showId=showid,body=form.body.data)
-		if comment_db.put():
-			flask.flash("Comment Created", category='success')
-	return flask.render_template('new_comment.html', html_class='new-comment', form=form)
+# 		comment_db = model.UserComments(user_key=auth.current_user_key(),showId=showid,body=form.body.data)
+# 		if comment_db.put():
+# 			flask.flash("Comment Created", category='success')
+# 	return flask.render_template('new_comment.html', html_class='new-comment', form=form)
 
-@app.route('/comment/<int:showid>/show/')
-def show_comments(showid):
-	showid = str(showid)
-	comment_db = model.UserComments.query().filter(model.UserComments.showId.IN([showid]))
+# @app.route('/comment/<int:showid>/show/')
+# def show_comments(showid):
+# 	showid = str(showid)
+# 	comment_db = model.UserComments.query().filter(model.UserComments.showId.IN([showid]))
 
 	
 
-	return flask.render_template('test_comments.html', comment_db=comment_db, html_class='comments')
+# 	return flask.render_template('comments.html', comment_db=comment_db, html_class='comments')
 	
 # =============================================================
 # ===							Additional routes 													=
