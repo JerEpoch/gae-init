@@ -10,12 +10,14 @@
 				{{form.csrf_token}}
 				
 				{{forms.text_field(form.body, rows=8, placeholder="Leave a comment.")|safe}}
-		     <button type="submit" class="btn btn-primary btn-block">
+		     <button type="submit" class="btn btn-primary btn-lg">
 	     		Submit Comment
 	      </button>
 			</fieldset>
 		</form>
 
 	</div>
+	# else
+	 <p>Please sign in to leave a comment. </p>
 	# endif
 # endblock

@@ -8,6 +8,7 @@
 	{% for comments in comments_db %}
 		<div class='well'>
 			<p>{{comments.body}}</p>
+			<hr>
 			<p>Created By: {{comments.creator}} on {{ moment(comments.created).format('MMMM Do YYYY, h:mm:ss a') }}</p>
 		</div>
 	{% endfor %}
