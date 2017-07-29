@@ -5,6 +5,7 @@ import flask_debugtoolbar
 
 import config
 import util
+from flask.ext.moment import Moment
 
 
 
@@ -13,6 +14,7 @@ class GaeRequest(flask.Request):
 
 
 app = flask.Flask(__name__)
+moment = Moment(app)
 app.config.from_object(config)
 
 

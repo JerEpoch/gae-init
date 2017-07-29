@@ -1,22 +1,12 @@
 # extends 'base.html'
 
-<script type="text/javascript" src="{{ url_for('static', filename='floatButton.js') }}"></script>
+
 # block content
+	<h1>Moment Test</h1>
 
+	{{ moment.include_jquery() }}
+	{{ moment.include_moment() }}
 
-<div class="container" style="width:800px; margin:0 auto;" >
-	<h1>Testing page!!</h1>
-</div>
-
-{% for show in shows %}
-	<div class="container" style="width:800px; margin:0 auto;">
-		{% if show['poster_path'] %}
-			<a href="{{ url_for('show_detail', id=show['id'], back=back_url) }}">
-				<img style="padding-bottom: 5px;" src="https://image.tmdb.org/t/p/w300{{ show['poster_path'] }}">
-			</a>
-		{% endif %}
-	</div>
-{% endfor %}
-<button onclick="topFunction()" id="myBtn" title="Go to top">Top</button>
+	<p>The current date and time is: {{ moment().format('MMMM Do YYYY, h:mm:ss a') }}</p>
 
 # endblock

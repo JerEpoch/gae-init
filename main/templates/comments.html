@@ -1,12 +1,16 @@
 
 
 # block content
-<h1>User Comments</h1>
-{% for comments in comments_db %}
-	<div class='well'>
-		<p>{{comments.body}}</p>
-		<p>Created By: {{comments.creator}}</p>
-	</div>
-{% endfor %}
 
+
+
+	<h1>User Comments</h1>
+	{% for comments in comments_db %}
+		<div class='well'>
+			<p>{{comments.body}}</p>
+			<p>Created By: {{comments.creator}} on {{ moment(comments.created).format('MMMM Do YYYY, h:mm:ss a') }}</p>
+		</div>
+	{% endfor %}
+	{{ moment.include_jquery() }}
+	{{ moment.include_moment() }}
 # endblock

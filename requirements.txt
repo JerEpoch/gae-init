@@ -7,6 +7,7 @@ flask==0.12.1
 pyjwt==1.4.2
 unidecode==0.4.20
 webargs==1.6.0
+flask-moment
 
 
 flask-debugtoolbar==0.10.1

@@ -14,6 +14,7 @@ import urllib2
 
 from flask import json, request
 
+
 from blog.routes import blog
 from main import app
 
@@ -22,6 +23,7 @@ from config import TMDB_API_KEY
 # TO DO
 # Get shows suggestions based on current show
 # Add a comment system for users
+# check out moment js for dates
 
 # https://pythonhosted.org/Flask-Caching/
 # https://www.themoviedb.org/documentation/api
@@ -325,12 +327,8 @@ def shows_weekly():
 # used for testing purposes
 @app.route('/shows/test', methods=['GET','POST'])
 def show_info():
-	show_info = getSearched("asd;kfjsdlfjk")
-	if show_info:
-		flask.flash(show_info)
-		return flask.render_template('testing.html', html_class='blah',)
-	else:
-		return flask.redirect(flask.url_for('show_error'))
+	return flask.render_template('testing.html', html_class='blah',)
+
 
 
 # @app.route('/comment/<int:showid>/new/', methods=['GET','POST'])
