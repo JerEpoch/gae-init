@@ -5,7 +5,7 @@ import flask_debugtoolbar
 
 import config
 import util
-from flask.ext.moment import Moment
+from flask_moment import Moment
 
 
 

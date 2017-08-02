@@ -19,6 +19,7 @@ from blog.routes import blog
 from main import app
 
 from config import TMDB_API_KEY
+from faker import Factory
 
 # TO DO
 # Get shows suggestions based on current show
@@ -39,6 +40,15 @@ class SearchShowForm(FlaskForm):
 class NewComment(FlaskForm):
 	body = TextAreaField('', validators=[DataRequired(), Length(5, 1500)])
 
+def fake_data(id):
+	fake = Factory.create()
+	for _ in range(30):
+		name = fake.name()
+		body = "Suspendisse gravida lorem vitae velit feugiat, id pulvinar magna euismod. Integer vel euismod turpis. Vestibulum tempor vehicula justo, et tristique erat dictum ut. Ut vel sem faucibus, placerat velit tristique, rutrum enim. Quisque rhoncus neque nec tortor faucibus maximus. Sed congue mi sed libero sagittis, ut convallis nisi auctor. Aliquam consequat dolor nec elementum pellentesque. Donec viverra felis nunc, non dapibus odio euismod vel. Nam in quam eget ante convallis efficitur ut vel lorem."
+		comment_db = model.UserComments(user_key=auth.current_user_key(), showId=id, body=body, 
+																		creator=name)
+		comment_db.put()
+
 
 def getAirsToday():
 	data = memcache.get('dailyTV')
@@ -53,7 +63,22 @@ def getAirsToday():
 			data = json.loads(result.content)
 			
 			if len(data['results']) > 0:
-				memcache.add('dailyTV', data['results'], time=3600)
+				memcache.add('dailyTV', data['results'], time=36000)
+				return data['results']
+			else:
+				return None
+
+def getAirsWeek():
+	data = memcache.get('weeklyTV')
+	url = 'https://api.themoviedb.org/3/tv/on_the_air?page=1&language=en-US&api_key=' + TMDB_API_KEY
+	if data is not None:
+		return data
+	else:
+		result = urlfetch.fetch(url)
+		if result.status_code == 200:
+			data = json.loads(result.content)
+			if len(data['results']) > 0:
+				memcache.add('weeklyTV', data['results'], time=36000)
 				return data['results']
 			else:
 				return None
@@ -133,20 +158,7 @@ def getShowDetails(data):
 
 	
 
-def getAirsWeek():
-	data = memcache.get('weeklyTV')
-	url = 'https://api.themoviedb.org/3/tv/on_the_air?page=1&language=en-US&api_key=' + TMDB_API_KEY
-	if data is not None:
-		return data
-	else:
-		result = urlfetch.fetch(url)
-		if result.status_code == 200:
-			data = json.loads(result.content)
-			if len(data['results']) > 0:
-				memcache.add('weeklyTV', data['results'], time=3600)
-				return data['results']
-			else:
-				return None
+
 
 def getSearched(search):
 	search = search.replace(' ', '%20')
@@ -186,10 +198,16 @@ def show_search(searched):
 	show_info = getSearched(searched)
 	if show_info:
 		details = getShowDetails(show_info)
-		return flask.render_template('searched.html',
-																html_class='searched',
-																details = details,
-																)
+		head = "Your Search"
+		return flask.render_template('tvShows.html',
+														html_class = 'searched',
+														shows = details,
+														head = head,
+														)
+		# return flask.render_template('searched.html',
+		# 														html_class='searched',
+		# 														details = details,
+		# 														)
 	else:
 		errors = "We could not find the show " + searched + ". Please try searching again."
 		return flask.render_template('search_error.html', html_class='search-error', errors=errors)
@@ -201,19 +219,26 @@ def show_detail(id):
 	shows = getSingleShowInfo(id)
 	back_url = request.args.get('back')
 	showid=str(id)
-
+	comment_len = True
 	if(auth.current_user_id > 0):
 		fav = isFavorited(id)
 
-	comments_db, comment_cursor = model.UserComments.get_dbs(showId=showid,order='-created')
+	# fake_data(showid)
+	comments_db, comments_cursor = model.UserComments.get_dbs(showId = showid, limit=10, prev_cursor=True,)
+	
+	# comments_query = model.UserComments.query().order(-model.UserComments.created)
+	# comments_db = comments_query.filter(model.UserComments.showId == showid)
 
-	#tvShow = getSearched(show)
-	#shows = getShowDetails(tvShow)
-	#shows = 'test test'
+
+	
+	# Checks to see if the query returned something. Used to display a message in the template
+	# if comments_db.count() < 1:
+	# 	comment_len = False
+		
 
 	if form.validate_on_submit():
-		# flask.flash(auth.current_user_db().name)
-		comment_db = model.UserComments(user_key=auth.current_user_key(),showId=showid,body=form.body.data, creator=auth.current_user_db().name)
+		comment_db = model.UserComments(user_key=auth.current_user_key(), showId=showid, body=form.body.data, 
+																		creator=auth.current_user_db().name)
 		if comment_db.put():
 			flask.flash("Comment Created", category='success')
 			return flask.redirect(flask.url_for('show_detail', id=id))
@@ -225,6 +250,9 @@ def show_detail(id):
 																fav = fav,
 																form=form,
 																comments_db=comments_db,
+																next_url = util.generate_next_url(comments_cursor['next']),
+																prev_url = util.generate_next_url(comments_cursor['prev']),
+																
 																)
 
 
@@ -293,7 +321,7 @@ def shows_today():
 	shows = getAirsToday()
 	if shows:
 		head = "Shows Airing Today"
-		return flask.render_template('todaysShows.html',
+		return flask.render_template('tvShows.html',
 																html_class = 'todays-shows',
 																shows = shows,
 																head = head,
@@ -308,7 +336,7 @@ def shows_weekly():
 	shows = getAirsWeek()
 	if shows:
 		head = "Shows Airing Within A Week"
-		return flask.render_template('todaysShows.html',
+		return flask.render_template('tvShows.html',
 																html_class = 'todays-shows',
 																shows = shows,
 																head = head,
@@ -318,11 +346,6 @@ def shows_weekly():
 		errors = "Something went wrong getting the weekly shows. Please try again later."
 		return flask.render_template('search_error.html', html_class='search-error', errors=errors)
 
-#error route
-# most likely do NOT need. NOTE: DELETE LATER
-# @app.route('/tvshow/error/')
-# def show_error():
-# 	return flask.render_template('search_error.html', html_class='search-error',)
 
 # used for testing purposes
 @app.route('/shows/test', methods=['GET','POST'])

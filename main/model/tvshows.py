@@ -9,6 +9,8 @@ class UserComments(model.Base):
 	creator = ndb.StringProperty(required=True)
 	created = ndb.DateTimeProperty(auto_now = True)
 
+
+
 class tvShows(model.Base):
 	user_key = ndb.KeyProperty(kind=model.User, required=True)
 	showId = ndb.StringProperty(required=True)
@@ -16,7 +18,6 @@ class tvShows(model.Base):
 	showPoster = ndb.StringProperty()
 	favorite = ndb.BooleanProperty()
 	
-	#show = ndb.PickleProperty(required=True)
 
 
 
