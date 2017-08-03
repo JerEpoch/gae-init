@@ -3,6 +3,8 @@ from wtforms import Form, validators, StringField,TextAreaField
 from flask_wtf import FlaskForm
 from wtforms.validators import DataRequired, Length
 from google.appengine.api import memcache, urlfetch
+from webargs import fields as wf
+from webargs.flaskparser import parser
 import wtforms
 import flask
 import auth
@@ -223,6 +225,8 @@ def show_detail(id):
 	if(auth.current_user_id > 0):
 		fav = isFavorited(id)
 
+	args = parser.parse({'-created': wf.Str(missing=None), 'created': wf.Str(missing=None,) })
+
 	# fake_data(showid)
 	comments_db, comments_cursor = model.UserComments.get_dbs(showId = showid, limit=10, prev_cursor=True,)
 	
@@ -250,8 +254,9 @@ def show_detail(id):
 																fav = fav,
 																form=form,
 																comments_db=comments_db,
-																next_url = util.generate_next_url(comments_cursor['next']),
-																prev_url = util.generate_next_url(comments_cursor['prev']),
+																next_url=util.generate_next_url(comments_cursor['next']),
+																prev_url=util.generate_next_url(comments_cursor['prev']),
+																permissions = args,
 																
 																)
 

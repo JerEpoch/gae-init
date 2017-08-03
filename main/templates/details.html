@@ -1,5 +1,9 @@
 # extends 'base.html'
+# import 'macro/utils.html' as utils
 
+# block head
+	{{utils.prefetch_link(next_url)}}
+# endblock
 
 
 # block content
@@ -34,6 +38,8 @@
 		</div>
 	{% endfor %}
 
+
+
 	{% if back_url == 'shows_today' %}
 		<a href="{{ url_for('shows_today') }}">Back To Results</a>
 	{% elif back_url == 'shows_weekly' %}
@@ -47,7 +53,7 @@
 
 	{% include 'new_comment.html' %}
 	{% include 'comments.html' %}
-
+	
 
 </div>
 
