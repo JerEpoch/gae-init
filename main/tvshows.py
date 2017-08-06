@@ -36,6 +36,8 @@ from faker import Factory
 # request.args
 # http://flask.pocoo.org/snippets/63/
 
+CACHE_TIME = 36000
+
 class SearchShowForm(FlaskForm):
 	name = wtforms.StringField('',validators=[DataRequired(), Length(1,100)])
 
@@ -65,7 +67,7 @@ def getAirsToday():
 			data = json.loads(result.content)
 			
 			if len(data['results']) > 0:
-				memcache.add('dailyTV', data['results'], time=36000)
+				memcache.add('dailyTV', data['results'], time=CACHE_TIME)
 				return data['results']
 			else:
 				return None
@@ -80,7 +82,7 @@ def getAirsWeek():
 		if result.status_code == 200:
 			data = json.loads(result.content)
 			if len(data['results']) > 0:
-				memcache.add('weeklyTV', data['results'], time=36000)
+				memcache.add('weeklyTV', data['results'], time=CACHE_TIME)
 				return data['results']
 			else:
 				return None
@@ -158,13 +160,13 @@ def getShowDetails(data):
 			allShows.append(data)		
 	return allShows
 
-	
 
 
 
 def getSearched(search):
 	search = search.replace(' ', '%20')
-	url = 'https://api.themoviedb.org/3/search/tv?page=1&query=' + search +'&language=en-US&api_key=' + TMDB_API_KEY
+	url = 'https://api.themoviedb.org/3/search/tv?&query=' + search +'&language=en-US&api_key=' + TMDB_API_KEY
+	#url = 'https://api.themoviedb.org/3/search/multi?api_key=' + TMDB_API_KEY + '&language=en-US&query=' + search +'&include_adult=false'
 	try:
 			result = urlfetch.fetch(url)
 			if result.status_code == 200:
@@ -233,12 +235,6 @@ def show_detail(id):
 	# comments_query = model.UserComments.query().order(-model.UserComments.created)
 	# comments_db = comments_query.filter(model.UserComments.showId == showid)
 
-
-	
-	# Checks to see if the query returned something. Used to display a message in the template
-	# if comments_db.count() < 1:
-	# 	comment_len = False
-		
 
 	if form.validate_on_submit():
 		comment_db = model.UserComments(user_key=auth.current_user_key(), showId=showid, body=form.body.data, 
@@ -359,27 +355,8 @@ def show_info():
 
 
 
-# @app.route('/comment/<int:showid>/new/', methods=['GET','POST'])
-# def new_comment(showid):
-# 	form = NewComment()
-# 	showid=str(showid)
 
-# 	if form.validate_on_submit():
-		
-# 		comment_db = model.UserComments(user_key=auth.current_user_key(),showId=showid,body=form.body.data)
-# 		if comment_db.put():
-# 			flask.flash("Comment Created", category='success')
-# 	return flask.render_template('new_comment.html', html_class='new-comment', form=form)
 
-# @app.route('/comment/<int:showid>/show/')
-# def show_comments(showid):
-# 	showid = str(showid)
-# 	comment_db = model.UserComments.query().filter(model.UserComments.showId.IN([showid]))
-
-	
-
-# 	return flask.render_template('comments.html', comment_db=comment_db, html_class='comments')
-	
 # =============================================================
 # ===							Additional routes 													=
 # =============================================================
