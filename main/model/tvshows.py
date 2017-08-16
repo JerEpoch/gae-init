@@ -7,7 +7,7 @@ class UserComments(model.Base):
 	showId = ndb.StringProperty(required=True)
 	body = ndb.StringProperty(required=True)
 	creator = ndb.StringProperty(required=True)
-	created = ndb.DateTimeProperty(auto_now = True)
+	#created = ndb.DateTimeProperty(auto_now = True)
 
 
 

@@ -49,7 +49,8 @@ def fake_data(id):
 	fake = Factory.create()
 	for _ in range(30):
 		name = fake.name()
-		body = "Suspendisse gravida lorem vitae velit feugiat, id pulvinar magna euismod. Integer vel euismod turpis. Vestibulum tempor vehicula justo, et tristique erat dictum ut. Ut vel sem faucibus, placerat velit tristique, rutrum enim. Quisque rhoncus neque nec tortor faucibus maximus. Sed congue mi sed libero sagittis, ut convallis nisi auctor. Aliquam consequat dolor nec elementum pellentesque. Donec viverra felis nunc, non dapibus odio euismod vel. Nam in quam eget ante convallis efficitur ut vel lorem."
+		body = fake.text()
+		#body = "Suspendisse gravida lorem vitae velit feugiat, id pulvinar magna euismod. Integer vel euismod turpis. Vestibulum tempor vehicula justo, et tristique erat dictum ut. Ut vel sem faucibus, placerat velit tristique, rutrum enim. Quisque rhoncus neque nec tortor faucibus maximus. Sed congue mi sed libero sagittis, ut convallis nisi auctor. Aliquam consequat dolor nec elementum pellentesque. Donec viverra felis nunc, non dapibus odio euismod vel. Nam in quam eget ante convallis efficitur ut vel lorem."
 		comment_db = model.UserComments(user_key=auth.current_user_key(), showId=id, body=body, 
 																		creator=name)
 		comment_db.put()
@@ -223,24 +224,26 @@ def show_detail(id):
 	form = NewComment()
 	shows = getSingleShowInfo(id)
 	back_url = request.args.get('back')
-	showid=str(id)
-	comment_len = True
+	showId=str(id)
 	if(auth.current_user_id > 0):
 		fav = isFavorited(id)
 
-	args = parser.parse({'-created': wf.Str(missing=None), 'created': wf.Str(missing=None,) })
+	#args = parser.parse({'-created': wf.Str(missing=None) })
 
-	# fake_data(showid)
-	comments_db, comments_cursor = model.UserComments.get_dbs(showId = showid, limit=10, prev_cursor=True,)
-	
+	#fake_data(showid)
+	try:
+		comments_db, comments_cursor = model.UserComments.get_dbs(showId = showId, order='-created', limit=10)
+	except:
+		comments_db = None
+
 	# comments_query = model.UserComments.query().order(-model.UserComments.created)
 	# comments_db = comments_query.filter(model.UserComments.showId == showid)
 
 
 	if form.validate_on_submit():
-		comment_db = model.UserComments(user_key=auth.current_user_key(), showId=showid, body=form.body.data, 
+		comment = model.UserComments(user_key=auth.current_user_key(), showId=showid, body=form.body.data, 
 																		creator=auth.current_user_db().name)
-		if comment_db.put():
+		if comment.put():
 			flask.flash("Comment Created", category='success')
 			return flask.redirect(flask.url_for('show_detail', id=id, order='-created'))
 
@@ -251,10 +254,6 @@ def show_detail(id):
 																fav = fav,
 																form=form,
 																comments_db=comments_db,
-																next_url=util.generate_next_url(comments_cursor['next']),
-																prev_url=util.generate_next_url(comments_cursor['prev']),
-																permissions = args,
-																
 																)
 
 
