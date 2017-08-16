@@ -35,6 +35,7 @@ from faker import Factory
 #flask.request.referer
 # request.args
 # http://flask.pocoo.org/snippets/63/
+# input-group-addon
 
 CACHE_TIME = 36000
 
@@ -241,7 +242,7 @@ def show_detail(id):
 																		creator=auth.current_user_db().name)
 		if comment_db.put():
 			flask.flash("Comment Created", category='success')
-			return flask.redirect(flask.url_for('show_detail', id=id))
+			return flask.redirect(flask.url_for('show_detail', id=id, order='-created'))
 
 	return flask.render_template('details.html',
 																html_class='show_detail',

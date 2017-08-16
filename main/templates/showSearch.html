@@ -12,12 +12,14 @@
 				<form method="POST" action=".">
 					<fieldset>
 						{{ form.csrf_token }}
-					
+						
+
 						{{forms.text_field(form.name, autofocus=True, placeholder="Show Name")}}
 						
-						<button type="submit" id="btn-search" class="btn btn-primary btn-primary">
+						<button type="submit" id="btn-search" class="btn btn-primary">
 							Search
 						</button>
+
 					</fieldset>
 				</form>
 				
