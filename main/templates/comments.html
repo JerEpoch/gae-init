@@ -8,6 +8,8 @@
 		<div class="col-md-8 col-sm-4">
 			<h1>User Comments</h1>
 			# if comments_db
+			{{ utils.order_by_link('created', 'Created') }}
+			<br>
 			{% for comments in comments_db %}
 				<div class='well'>
 					<p>{{comments.body}}</p>

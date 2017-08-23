@@ -16,6 +16,7 @@ class BlogEntryForm(FlaskForm):
 @blog.route('/blog/')
 def main_blog():
 	blog_db, blog_cursor = model.BlogEntry.get_dbs(order='-created')
+	flask.flash(blog_db)
 	return flask.render_template('blog.html', html_class='blog-list', blog_db=blog_db)
 
 @blog.route('/blog/new/', methods=['GET', 'POST'])

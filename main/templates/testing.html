@@ -3,5 +3,20 @@
 
 # block content
 
+<h1>Testing</h1>
+
+{% for show in shows %}
+	<p>{{ show.name }}</p>
+{% endfor %}
+
+<p>Currently on page {{page}} of {{totalPages}}</p>
+{% if (page > 1) %}
+	<a href="{{ url_for('show_info', page=page-1) }}">Previous</a>
+{% endif %}
+{% if(page < totalPages) %}
+	<a href="{{ url_for('show_info', page=page+1) }}">Next</a>
+{% endif %}
+
+
 
 # endblock

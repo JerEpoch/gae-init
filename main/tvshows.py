@@ -126,27 +126,35 @@ def getSingleShowInfo(id):
 				logging.exception('Caught exception fetching url')
 
 # used for testing stuff
-def getShowTest(id):
-	show = []
-	id = str(id)
+def getShowTest(page):
+
+	page = str(page)
+	url = "https://api.themoviedb.org/3/tv/airing_today?page=" + page + "&language=en-US&api_key=" + TMDB_API_KEY
+	result = urlfetch.fetch(url)
+	if result.status_code == 200:
+		data = json.loads(result.content)
+		return data['results'], data['total_pages']
+
+	# show = []
+	# id = str(id)
 	
-	data = memcache.get(id)
-	if data is not None:
-		return data
-	else:
-		try:
-				url = 'https://api.themoviedb.org/3/tv/' + id + '?language=en-US&api_key=' + TMDB_API_KEY
-				result = urlfetch(url)
-				if result.status_code == 200:
-					data = json.load(result.content)
-					if len(data['results']) > 0:
-						show.append(data)
-						memcache.add(id,show,time=3600)
-						return show
-					else:
-						return None
-		except urlfetch.Error:
-				logging.exception('Caught exception fetching url')
+	# data = memcache.get(id)
+	# if data is not None:
+	# 	return data
+	# else:
+	# 	try:
+	# 			url = 'https://api.themoviedb.org/3/tv/' + id + '?language=en-US&api_key=' + TMDB_API_KEY
+	# 			result = urlfetch(url)
+	# 			if result.status_code == 200:
+	# 				data = json.load(result.content)
+	# 				if len(data['results']) > 0:
+	# 					show.append(data)
+	# 					memcache.add(id,show,time=3600)
+	# 					return show
+	# 				else:
+	# 					return None
+	# 	except urlfetch.Error:
+	# 			logging.exception('Caught exception fetching url')
 
 def getShowDetails(data):
 	# get a detail search for the show id and store it
@@ -231,17 +239,17 @@ def show_detail(id):
 	#args = parser.parse({'-created': wf.Str(missing=None) })
 
 	#fake_data(showid)
-	try:
-		comments_db, comments_cursor = model.UserComments.get_dbs(showId = showId, order='-created', limit=10)
-	except:
-		comments_db = None
+
+	comments_db, comments_cursor = model.UserComments.get_dbs(showId = showId, limit=10, prev_cursor=True)
+
+
 
 	# comments_query = model.UserComments.query().order(-model.UserComments.created)
 	# comments_db = comments_query.filter(model.UserComments.showId == showid)
 
 
 	if form.validate_on_submit():
-		comment = model.UserComments(user_key=auth.current_user_key(), showId=showid, body=form.body.data, 
+		comment = model.UserComments(user_key=auth.current_user_key(), showId=showId, body=form.body.data, 
 																		creator=auth.current_user_db().name)
 		if comment.put():
 			flask.flash("Comment Created", category='success')
@@ -254,6 +262,8 @@ def show_detail(id):
 																fav = fav,
 																form=form,
 																comments_db=comments_db,
+																next_url=util.generate_next_url(comments_cursor['next']),
+																prev_url=util.generate_next_url(comments_cursor['prev']),
 																)
 
 
@@ -349,9 +359,11 @@ def shows_weekly():
 
 
 # used for testing purposes
-@app.route('/shows/test', methods=['GET','POST'])
-def show_info():
-	return flask.render_template('testing.html', html_class='blah',)
+@app.route('/shows/test/<int:page>/', methods=['GET','POST'])
+def show_info(page):
+	shows, totalPages = getShowTest(page)
+	
+	return flask.render_template('testing.html', html_class='blah', shows=shows, page=page, totalPages=totalPages)
 
 
 

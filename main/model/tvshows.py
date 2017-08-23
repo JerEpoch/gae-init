@@ -13,7 +13,7 @@ class UserComments(model.Base):
 
 class tvShows(model.Base):
 	user_key = ndb.KeyProperty(kind=model.User, required=True)
-	showId = ndb.StringProperty(required=True)
+	showId = ndb.StringProperty(required=True, indexed=True)
 	showName = ndb.StringProperty(required=True)
 	showPoster = ndb.StringProperty()
 	favorite = ndb.BooleanProperty()
