@@ -56,21 +56,22 @@ def fake_data(id):
 		comment_db.put()
 
 
-def getAirsToday():
-	data = memcache.get('dailyTV')
+def getAirsToday(page):
+	page = str(page)
+	data = memcache.get('dailyTV' + page)
 	
 	
-	url = "https://api.themoviedb.org/3/tv/airing_today?page=1&language=en-US&api_key=" + TMDB_API_KEY
+	url = "https://api.themoviedb.org/3/tv/airing_today?page=" + page + "&language=en-US&api_key=" + TMDB_API_KEY
 	if data is not None:
-		return data
+		return data['results'], data['total_pages']
 	else:
 		result = urlfetch.fetch(url)
 		if result.status_code == 200:
 			data = json.loads(result.content)
 			
 			if len(data['results']) > 0:
-				memcache.add('dailyTV', data['results'], time=CACHE_TIME)
-				return data['results']
+				memcache.add('dailyTV' + page, data, time=CACHE_TIME)
+				return data['results'], data['total_pages']
 			else:
 				return None
 
@@ -88,20 +89,6 @@ def getAirsWeek():
 				return data['results']
 			else:
 				return None
-
-	# if data is not None:
-	# 	return data
-	# else:
-	# 	try:
-	# 		json_obj = urllib2.urlopen(url)
-	# 		data = json.load(json_obj)
-
-	# 		memcache.add('dailyTV', data['results'], time=3600)
-	# 		return data['results']
-			
-	# 	except urllib2.URLError:
-	# 		logging.exception('Caught exception fetching url')
-
 
 def getSingleShowInfo(id):
 	show = []
@@ -130,10 +117,14 @@ def getShowTest(page):
 
 	page = str(page)
 	url = "https://api.themoviedb.org/3/tv/airing_today?page=" + page + "&language=en-US&api_key=" + TMDB_API_KEY
+	url2 = "https://api.themoviedb.org/3/tv/airing_today?api_key=3a3628871c75cfc1fa3bcf7b2f9043aa&language=en-US&page=2"
 	result = urlfetch.fetch(url)
+	result2 = urlfetch.fetch(url2)
 	if result.status_code == 200:
 		data = json.loads(result.content)
-		return data['results'], data['total_pages']
+		data2 = json.loads(result2.content)
+		newData = dict(data.items() + data2.items())
+		return newData['results'], data['total_pages']
 
 	# show = []
 	# id = str(id)
@@ -327,15 +318,17 @@ def remove_favorite(id):
 		flask.flash("Removed from favorites.", category='success')
 	return flask.redirect(flask.url_for('my_favorites'))
 
-@app.route('/shows_today/', methods=['GET', 'POST'])
-def shows_today():
-	shows = getAirsToday()
+@app.route('/shows_today/<int:page>/', methods=['GET', 'POST'])
+def shows_today(page):
+	shows, totalPages = getAirsToday(page)
 	if shows:
 		head = "Shows Airing Today"
 		return flask.render_template('tvShows.html',
 																html_class = 'todays-shows',
 																shows = shows,
 																head = head,
+																page = page,
+																totalPages = totalPages,
 																back_url = 'shows_today'
 																)
 	else:

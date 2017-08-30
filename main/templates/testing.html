@@ -7,6 +7,9 @@
 
 {% for show in shows %}
 	<p>{{ show.name }}</p>
+				{% if show['poster_path'] %}
+				<img id="poster" src="https://image.tmdb.org/t/p/w300{{ show['poster_path'] }}">
+			{% endif %}
 {% endfor %}
 
 <p>Currently on page {{page}} of {{totalPages}}</p>

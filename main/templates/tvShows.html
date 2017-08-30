@@ -5,19 +5,30 @@
 # block content
 
 
-<div class="container" style="width:800px; margin:0 auto;" >
+<div class="container" id="posterDiv">
 	<h1>{{ head }}</h1>
 </div>
 
+
 {% for show in shows %}
-	<div class="container" style="width:800px; margin:0 auto;">
+	<div class="container" id="posterDiv">
 		{% if show['poster_path'] %}
 			<a href="{{ url_for('show_detail', id=show['id'], order='-created', back=back_url) }}">
-				<img style="padding-bottom: 5px;" src="https://image.tmdb.org/t/p/w300{{ show['poster_path'] }}">
+				<img id="poster" src="https://image.tmdb.org/t/p/w300{{ show['poster_path'] }}">
 			</a>
 		{% endif %}
 	</div>
 {% endfor %}
+
+<div class="container" id="posterDiv">
+	<p>Currently on page {{page}} of {{totalPages}}</p>
+	{% if (page > 1) %}
+		<a href="{{ url_for('shows_today', page=page-1) }}">Previous</a>
+	{% endif %}
+	{% if(page < totalPages) %}
+		<a href="{{ url_for('shows_today', page=page+1) }}">Next</a>
+	{% endif %}
+</div>
 
 
 # endblock
