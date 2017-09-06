@@ -6,11 +6,10 @@
 
 # block content
 	<h1>Show Information</h1>
-{{back_url}}
 {% for show in shows %}
 
 	<div class="container">
-		<div  class="well">
+		<div class="well">
 			{% if show['poster_path'] %}
 				<img id="poster" src="https://image.tmdb.org/t/p/w300{{ show['poster_path'] }}">
 			{% endif %}
@@ -41,7 +40,7 @@
 	{% if back_url == 'shows_today' %}
 		<a href="{{ url_for('shows_today', page=1) }}">Back To Results</a>
 	{% elif back_url == 'shows_weekly' %}
-		<a href="{{ url_for('shows_weekly') }}">Back To Results</a>
+		<a href="{{ url_for('shows_weekly', page=1) }}">Back To Results</a>
 	{% elif back_url == 'my_favorites' %}
 		<a href="{{ url_for('my_favorites') }}">Back To Favorites</a>
 	{% else %}

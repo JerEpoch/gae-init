@@ -20,13 +20,24 @@
 	</div>
 {% endfor %}
 
+
+
 <div class="container" id="posterDiv">
 	<p>Currently on page {{page}} of {{totalPages}}</p>
 	{% if (page > 1) %}
-		<a href="{{ url_for('shows_today', page=page-1) }}">Previous</a>
+		{% if back_url == 'shows_weekly' %}
+			<a href="{{ url_for('shows_weekly', page=page-1) }}" id="prev_page"><i class="fa fa-arrow-circle-o-left fa-3x" aria-hidden="true"></a></i>
+		{% else %}
+			<a href="{{ url_for('shows_today', page=page-1) }}" id="prev_page"><i class="fa fa-arrow-circle-o-left fa-3x" aria-hidden="true"></a></i>
+		{% endif %}
 	{% endif %}
+
 	{% if(page < totalPages) %}
-		<a href="{{ url_for('shows_today', page=page+1) }}">Next</a>
+		{% if back_url == 'shows_weekly' %}
+			<a href="{{ url_for('shows_weekly', page=page+1) }}" id="next_page"><i class="fa fa-arrow-circle-o-right fa-3x" aria-hidden="true"></a></i>
+		{% else %}
+			<a href="{{ url_for('shows_today', page=page+1) }}" id="next_page"><i class="fa fa-arrow-circle-o-right fa-3x" aria-hidden="true"></a></i>
+		{% endif %}
 	{% endif %}
 </div>
 

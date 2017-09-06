@@ -23,13 +23,13 @@
 					</fieldset>
 				</form>
 				
-				<a href="{{ url_for('shows_today', page=1) }}">
+				<a href="{{ url_for('shows_today', page=1, back_url='shows_today') }}">
 					<button type="submit" id="btn-today" class="btn btn-primary">
 						Today's Shows
 					</button>
 				</a>
 
-				<form action="{{ url_for('shows_weekly') }}" method="POST">
+				<form action="{{ url_for('shows_weekly', page=1, back_url='shows_weekly') }}" method="POST">
 					<button type="submit" id="btn-week" class="btn btn-primary">
 						Weekly Shows
 					</button>

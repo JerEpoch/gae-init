@@ -58,35 +58,43 @@ def fake_data(id):
 
 def getAirsToday(page):
 	page = str(page)
+	# gets memcache of shows airing today on the current user page
 	data = memcache.get('dailyTV' + page)
 	
 	
 	url = "https://api.themoviedb.org/3/tv/airing_today?page=" + page + "&language=en-US&api_key=" + TMDB_API_KEY
+
+	#if there is data in memcache, just return that. else it will grab it from TMDB api
 	if data is not None:
 		return data['results'], data['total_pages']
 	else:
 		result = urlfetch.fetch(url)
+		# if the fetch was ok, then convert the json to a dictionary
 		if result.status_code == 200:
 			data = json.loads(result.content)
 			
+			# just a check to ensure there is data, then adds it to the memcache and returns it.
 			if len(data['results']) > 0:
 				memcache.add('dailyTV' + page, data, time=CACHE_TIME)
 				return data['results'], data['total_pages']
 			else:
 				return None
 
-def getAirsWeek():
-	data = memcache.get('weeklyTV')
-	url = 'https://api.themoviedb.org/3/tv/on_the_air?page=1&language=en-US&api_key=' + TMDB_API_KEY
+def getAirsWeek(page):
+	# converts int page to string
+	page = str(page)
+	# gets memcache to return that if exist
+	data = memcache.get('weeklyTV' + page)
+	url = "https://api.themoviedb.org/3/tv/on_the_air?page=" + page +"&language=en-US&api_key=" + TMDB_API_KEY
 	if data is not None:
-		return data
+		return data['results'], data['total_pages']
 	else:
 		result = urlfetch.fetch(url)
 		if result.status_code == 200:
 			data = json.loads(result.content)
 			if len(data['results']) > 0:
-				memcache.add('weeklyTV', data['results'], time=CACHE_TIME)
-				return data['results']
+				memcache.add('weeklyTV' + page, data, time=CACHE_TIME)
+				return data['results'], data['total_pages']
 			else:
 				return None
 
@@ -201,6 +209,7 @@ def datetimeformat(value, format='%H:%M / %d-%m-%Y'):
 def show_search(searched):
 	#showsWeek = getAirsWeek()
 	show_info = getSearched(searched)
+	
 	if show_info:
 		details = getShowDetails(show_info)
 		head = "Your Search"
@@ -208,6 +217,8 @@ def show_search(searched):
 														html_class = 'searched',
 														shows = details,
 														head = head,
+														page = 1,
+														totalPages = 1,
 														)
 		# return flask.render_template('searched.html',
 		# 														html_class='searched',
@@ -335,15 +346,17 @@ def shows_today(page):
 		errors = "Something went wrong fetching the current day's shows. Please try again later."
 		return flask.render_template('search_error.html', html_class='search-error', errors=errors)
 
-@app.route('/shows_weekly/', methods=['GET', 'POST'])
-def shows_weekly():
-	shows = getAirsWeek()
+@app.route('/shows_weekly/<int:page>/', methods=['GET', 'POST'])
+def shows_weekly(page):
+	shows, totalPages = getAirsWeek(page)
 	if shows:
 		head = "Shows Airing Within A Week"
 		return flask.render_template('tvShows.html',
 																html_class = 'todays-shows',
 																shows = shows,
 																head = head,
+																page = page,
+																totalPages = totalPages,
 																back_url = 'shows_weekly'
 																)
 	else:
