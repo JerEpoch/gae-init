@@ -16,6 +16,12 @@
       <h2>Projects</h2>
       <p>Currently working on having one setup to search for a TV show. It will then tell you if the show is airing tonight. If not it will tell you the list of shows that air tonight alone with shows within a weeks time.</p>
     </div>
+    <div class="col-sm-6 col-md-4 col-lg-3">
+      <h2>Latest Entry</h2>
+      {% for entry in blog_db %}
+        <a href="{{url_for('blog.blog_entry', blog_id=entry.key.id()) }}">{{entry.title}}</a>
+      {% endfor %}
+    </div>
 
   </div>
 # endblock

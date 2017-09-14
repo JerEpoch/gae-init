@@ -1,10 +1,11 @@
 # coding: utf-8
 
 import flask
-
+import model
 import config
 
 from main import app
+
 
 
 ###############################################################################
@@ -12,7 +13,8 @@ from main import app
 ###############################################################################
 @app.route('/')
 def welcome():
-  return flask.render_template('welcome.html', html_class='welcome')
+	blog_db, blog_cursor = model.BlogEntry.get_dbs(order='-created')
+	return flask.render_template('welcome.html', html_class='welcome', blog_db=blog_db)
 
 
 ###############################################################################
