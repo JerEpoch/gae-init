@@ -7,41 +7,21 @@
 
 <div class="container" id="posterDiv">
 	<h1>{{ head }}</h1>
+
+
+	{% for show in shows %}
+		
+			<div class="container" id="posterDiv">
+				{% if show['poster_path'] %}
+					<a href="{{ url_for('show_detail', id=show['id'], order='-created', back=back_url) }}">
+						<img id="poster" src="https://image.tmdb.org/t/p/w300{{ show['poster_path'] }}">
+					</a>
+				{% endif %}
+			</div>
+		
+	{% endfor %}
+
+	<a href="{{ url_for('search_a_show') }}">New Search</a>
 </div>
-
-
-{% for show in shows %}
-	{% if show.origin_country[0] == 'US' %}
-		<div class="container" id="posterDiv">
-			{% if show['poster_path'] %}
-				<a href="{{ url_for('show_detail', id=show['id'], order='-created', back=back_url) }}">
-					<img id="poster" src="https://image.tmdb.org/t/p/w300{{ show['poster_path'] }}">
-				</a>
-			{% endif %}
-		</div>
-	{% endif %}
-{% endfor %}
-
-
-
-<div class="container" id="posterDiv">
-	<p>Currently on page {{page}} of {{totalPages}}</p>
-	{% if (page > 1) %}
-		{% if back_url == 'shows_weekly' %}
-			<a href="{{ url_for('shows_weekly', page=page-1) }}" id="prev_page"><i class="fa fa-arrow-circle-o-left fa-3x" aria-hidden="true"></a></i>
-		{% else %}
-			<a href="{{ url_for('shows_today', page=page-1) }}" id="prev_page"><i class="fa fa-arrow-circle-o-left fa-3x" aria-hidden="true"></a></i>
-		{% endif %}
-	{% endif %}
-
-	{% if(page < totalPages) %}
-		{% if back_url == 'shows_weekly' %}
-			<a href="{{ url_for('shows_weekly', page=page+1) }}" id="next_page"><i class="fa fa-arrow-circle-o-right fa-3x" aria-hidden="true"></a></i>
-		{% else %}
-			<a href="{{ url_for('shows_today', page=page+1) }}" id="next_page"><i class="fa fa-arrow-circle-o-right fa-3x" aria-hidden="true"></a></i>
-		{% endif %}
-	{% endif %}
-</div>
-
 
 # endblock

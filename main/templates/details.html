@@ -38,7 +38,7 @@
 
 
 	{% if back_url == 'shows_today' %}
-		<a href="{{ url_for('shows_today', page=1) }}">Back To Results</a>
+		<a href="{{ url_for('shows_today') }}">Back To Results</a>
 	{% elif back_url == 'shows_weekly' %}
 		<a href="{{ url_for('shows_weekly', page=1) }}">Back To Results</a>
 	{% elif back_url == 'my_favorites' %}
