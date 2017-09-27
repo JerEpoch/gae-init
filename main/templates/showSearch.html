@@ -14,7 +14,8 @@
 						{{ form.csrf_token }}
 						
 
-						{{forms.text_field(form.name, autofocus=True, placeholder="Show Name")}}
+						{{forms.text_field(form.name,  placeholder="Show Name")}}
+						{{forms.select_field(form.searchOptions)}}
 						
 						<button type="submit" id="btn-search" class="btn btn-primary">
 							Search
@@ -22,7 +23,7 @@
 
 					</fieldset>
 				</form>
-				
+
 				<a href="{{ url_for('shows_today', back_url='shows_today') }}">
 					<button type="submit" id="btn-today" class="btn btn-primary">
 						Today's Shows

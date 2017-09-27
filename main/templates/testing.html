@@ -5,13 +5,19 @@
 
 <h1>Testing</h1>
 
-{% for show in shows %}
-	<p>{{ show.name }}</p>
-	
-				{% if show['poster_path'] %}
-				<img id="poster" src="https://image.tmdb.org/t/p/w300{{ show['poster_path'] }}">
-			{% endif %}
-{% endfor %}
+<form class="form-inline" method="POST" action="{{ url_for('test_list') }}">
+  <div class="form-group">
+    <div class="input-group">
+        <span class="input-group-addon">Please select</span>
+            <select name="comp_select" class="selectpicker form-control">
+              {% for o in list_data %}
+              <option value="{{ o.name }}">{{ o.name }}</option>
+              {% endfor %}
+            </select>
+    </div>
+    <button type="submit" class="btn btn-default">Go</button>
+  </div>
+</form>
 
 
 
