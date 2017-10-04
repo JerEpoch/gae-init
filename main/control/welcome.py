@@ -13,7 +13,7 @@ from main import app
 ###############################################################################
 @app.route('/')
 def welcome():
-	blog_db, blog_cursor = model.BlogEntry.get_dbs(order='-created')
+	blog_db, blog_cursor = model.BlogEntry.get_dbs(limit=2, order='-created')
 	return flask.render_template('welcome.html', html_class='welcome', blog_db=blog_db)
 
 

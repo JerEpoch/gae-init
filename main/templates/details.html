@@ -5,36 +5,13 @@
 
 
 # block content
-	<h1>Show Information</h1>
-{% for show in shows %}
-
-	<div class="container">
-		<div class="well">
-			{% if show['poster_path'] %}
-				<img id="poster" src="https://image.tmdb.org/t/p/w300{{ show['poster_path'] }}">
-			{% endif %}
-			<p>{{ show['overview']}}</p>
-			{% if show['networks'].0 %}
-				<p>Network: {{ show['networks'].0.name }}</p>
-			{% endif %}
-
-			<p>Number of Seasons: {{ show['number_of_seasons'] }}</p>
-			<p>Runtime: {{ show['episode_run_time'][0] }} minutes</p>
-			{% if show['homepage'] %}
-				<p><a href="{{ show['homepage'] }}">Visit Show's Website</a></p>
-			{% endif %}
-			<a href="{{ url_for('fav_show', id=show['id']) }}">
-			{% if back_url != 'my_favorites' %}
-				{% if fav == 'False' %}
-					<button class="btn btn-primary" type="submit">
-						<i class="fa fa-star-o" aria-hidden="true"> Add To Favorites</i>
-					</button>
-				{% endif %}
-			{% endif %}
-			</a>
-		</div>
-	{% endfor %}
-
+{% if media == 'tv' %}
+	{% include 'tvShowDetails.html' %}
+{% elif media == 'movie' %}
+	{% include 'movieDetails.html' %}
+{% else %}
+	{% include 'actorDetails.html' %}
+{% endif %}
 
 
 	{% if back_url == 'shows_today' %}

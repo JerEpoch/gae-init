@@ -42,7 +42,7 @@ CACHE_TIME = 36000
 
 class SearchShowForm(FlaskForm):
 	name = wtforms.StringField('',validators=[DataRequired(), Length(1,100)])
-	searchOptions = wtforms.SelectField('Search For:', choices=[('name','TV Show'), ('name','Actor'), ('name','Movie')], default=1)
+	#searchOptions = wtforms.SelectField('Search For:', choices=[('name','TV Show'), ('name','Actor'), ('name','Movie')], default=1)
 
 class NewComment(FlaskForm):
 	body = TextAreaField('', validators=[DataRequired(), Length(5, 1500)])
@@ -171,11 +171,16 @@ def getAirsWeek(page):
 			else:
 				return None
 
+def getDetails(id, media):
+	if media == 'tv':
+		return getSingleShowInfo(id)
+	elif media == 'movie':
+		return getMovieDetails(id)
+
 def getSingleShowInfo(id):
 	show = []
 	id = str(id)
-	
-	data = memcache.get(id)
+	data = memcache.get('Single_Show' + id)
 	if data is not None:
 		return data
 	else:
@@ -186,12 +191,34 @@ def getSingleShowInfo(id):
 					data = json.loads(result.content)
 					if len(data) > 0:
 						show.append(data)
-						memcache.add(id,show,time=3600)
+						memcache.add('Single_Show' + id,show,time=3600)
 						return show
 					else:
 						return None
 		except urlfetch.Error:
 				logging.exception('Caught exception fetching url')
+
+def getMovieDetails(id):
+	movie = []
+	id = str(id)
+	data = memcache.get('Single_movie' + id)
+	if data is not None:
+		return data
+	else:
+		try:
+			url = 'https://api.themoviedb.org/3/movie/'+ id +'?api_key=' + TMDB_API_KEY + '&language=en-US'
+			result = urlfetch.fetch(url)
+			if result.status_code == 200:
+				data = json.loads(result.content)
+				if len(data) > 0:
+					movie.append(data)
+					memcache.add('Single_movie' + id, movie, time=CACHE_TIME)
+					return movie
+				else:
+					return None
+		except urlfetch.Error:
+				logging.exception('Caught exception fetching url')
+
 
 # used for testing stuff
 # def getShowTest(page):
@@ -199,7 +226,7 @@ def getSingleShowInfo(id):
 # 	getAirsToday(1, totalShows)
 # 	page = str(page)
 # 	url = "https://api.themoviedb.org/3/tv/airing_today?page=" + page + "&language=en-US&api_key=" + TMDB_API_KEY
-# 	url2 = "https://api.themoviedb.org/3/tv/airing_today?api_key=3a3628871c75cfc1fa3bcf7b2f9043aa&language=en-US&page=2"
+# 	url2 = "https://api.themoviedb.org/3/tv/airing_today?api_key=aa&language=en-US&page=2"
 # 	result = urlfetch.fetch(url)
 # 	result2 = urlfetch.fetch(url2)
 # 	if result.status_code == 200:
@@ -220,7 +247,7 @@ def getShowDetails(data):
 		result = urlfetch.fetch(url)
 		if result.status_code == 200:
 			data = json.loads(result.content)
-			allShows.append(data)		
+			allShows.append(data)
 	return allShows
 
 
@@ -228,8 +255,8 @@ def getShowDetails(data):
 
 def getSearched(search):
 	search = search.replace(' ', '%20')
-	url = 'https://api.themoviedb.org/3/search/tv?&query=' + search +'&language=en-US&api_key=' + TMDB_API_KEY
-	#url = 'https://api.themoviedb.org/3/search/multi?api_key=' + TMDB_API_KEY + '&language=en-US&query=' + search +'&include_adult=false'
+	#url = 'https://api.themoviedb.org/3/search/tv?&query=' + search +'&language=en-US&api_key=' + TMDB_API_KEY
+	url = 'https://api.themoviedb.org/3/search/multi?api_key=' + TMDB_API_KEY + '&language=en-US&query=' + search +'&include_adult=false'
 	try:
 			result = urlfetch.fetch(url)
 			if result.status_code == 200:
@@ -265,11 +292,11 @@ def show_search(searched):
 	show_info = getSearched(searched)
 	
 	if show_info:
-		details = getShowDetails(show_info)
+		#details = getShowDetails(show_info)
 		head = "Your Search"
 		return flask.render_template('tvShows.html',
 														html_class = 'searched',
-														shows = details,
+														shows = show_info,
 														head = head,
 														page = 1,
 														totalPages = 1,
@@ -282,13 +309,16 @@ def show_search(searched):
 		errors = "We could not find the show " + searched + ". Please try searching again."
 		return flask.render_template('search_error.html', html_class='search-error', errors=errors)
 
-
+@app.route('/shows/details/<int:id>/<string:media>/', methods=['GET','POST'])
 @app.route('/shows/details/<int:id>/', methods=['GET','POST'])
-def show_detail(id):
+def show_detail(id, media='tv'):
 	form = NewComment()
-	shows = getSingleShowInfo(id)
+	media = media
+	shows = getDetails(id, media)
+	#shows = getSingleShowInfo(id, media)
 	back_url = request.args.get('back')
 	showId=str(id)
+
 	if(auth.current_user_id > 0):
 		fav = isFavorited(id)
 
@@ -297,9 +327,6 @@ def show_detail(id):
 	#fake_data(showid)
 
 	comments_db, comments_cursor = model.UserComments.get_dbs(showId = showId, limit=10, prev_cursor=True)
-
-
-
 	# comments_query = model.UserComments.query().order(-model.UserComments.created)
 	# comments_db = comments_query.filter(model.UserComments.showId == showid)
 
@@ -316,6 +343,7 @@ def show_detail(id):
 																shows = shows,
 																back_url = back_url,
 																fav = fav,
+																media = media,
 																form=form,
 																comments_db=comments_db,
 																next_url=util.generate_next_url(comments_cursor['next']),

@@ -15,11 +15,13 @@
 						
 
 						{{forms.text_field(form.name,  placeholder="Show Name")}}
-						{{forms.select_field(form.searchOptions)}}
 						
+						
+						<a href="{{ url_for('search_a_show') }}">
 						<button type="submit" id="btn-search" class="btn btn-primary">
 							Search
 						</button>
+					</a>
 
 					</fieldset>
 				</form>
