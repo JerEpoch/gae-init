@@ -137,8 +137,37 @@ def all_shows_weekly():
 
 		sort_shows = sort_list(totalShows)
 		memcache.add('weeklyUS', sort_shows, time=CACHE_TIME)
+		return sort_shows
 
-	return sort_shows
+
+def getSimiliarShows(id):
+	id = str(id)
+	totalShows = []
+	shows = []
+	page = '1'
+	url = "https://api.themoviedb.org/3/tv/" + id + "/similar?api_key="+ TMDB_API_KEY + "&language=en-US&page=" + page
+	data = memcache.get('similarShows' + id)
+
+	if data is not None:
+		return data
+	else:
+		result = urlfetch.fetch(url)
+		if result.status_code == 200:
+			data = json.loads(result.content)
+			if data['total_pages'] > 1:
+				for page in range(1, data['total_pages'] + 1):
+					page = str(page)
+					url = "https://api.themoviedb.org/3/tv/" + id + "/similar?api_key="+ TMDB_API_KEY + "&language=en-US&page=" + page
+					result = urlfetch.fetch(url)
+					data = json.loads(result.content)
+					shows = data['results']
+					for show in shows:
+						totalShows.append(show)
+
+		sort_shows = sort_list(totalShows)
+		memcache.add('similarShows' + id, sort_shows, time=CACHE_TIME)
+		return sort_shows
+	
 
 def sort_list(shows):
 	# returns a list with US only shows.
@@ -176,6 +205,7 @@ def getDetails(id, media):
 		return getSingleShowInfo(id)
 	elif media == 'movie':
 		return getMovieDetails(id)
+	
 
 def getSingleShowInfo(id):
 	show = []
@@ -298,8 +328,6 @@ def show_search(searched):
 														html_class = 'searched',
 														shows = show_info,
 														head = head,
-														page = 1,
-														totalPages = 1,
 														)
 		# return flask.render_template('searched.html',
 		# 														html_class='searched',
@@ -309,11 +337,15 @@ def show_search(searched):
 		errors = "We could not find the show " + searched + ". Please try searching again."
 		return flask.render_template('search_error.html', html_class='search-error', errors=errors)
 
-@app.route('/shows/details/<int:id>/<string:media>/', methods=['GET','POST'])
+
 @app.route('/shows/details/<int:id>/', methods=['GET','POST'])
-def show_detail(id, media='tv'):
+#@app.route('/shows/details/<int:id>/<string:media>/', methods=['GET','POST'])
+def show_detail(id):
 	form = NewComment()
-	media = media
+	media = request.args.get('media')
+	if media == '':
+		media = 'tv'
+
 	shows = getDetails(id, media)
 	#shows = getSingleShowInfo(id, media)
 	back_url = request.args.get('back')
@@ -355,7 +387,6 @@ def show_detail(id, media='tv'):
 # route for when a user searches for a show
 @app.route('/search_a_show/', methods=['GET','POST'])
 def search_a_show():
-	list_data = [{'name':'TV Show'}, {'name':'Actor'}, {'name':'Movie'}]
 	form = SearchShowForm()
 
 	if form.validate_on_submit():
@@ -366,7 +397,6 @@ def search_a_show():
 	return flask.render_template('showSearch.html',
 															html_class = 'show-search',
 															form = form,
-															list_data=list_data,
 															)
 
 # Display all favorite shows
@@ -449,6 +479,12 @@ def shows_weekly():
 		errors = "Something went wrong getting the weekly shows. Please try again later."
 		return flask.render_template('search_error.html', html_class='search-error', errors=errors)
 
+@app.route('/similarShows/<int:id>', methods=['GET', 'POST'])
+def similarShows(id):
+	shows = getSimiliarShows(id)
+	if shows:
+		head = "Similar Shows"
+		return flask.render_template('tvShows.html', html_class='similar-shows', shows=shows, head = head, back_url='similar')
 
 # used for testing purposes
 @app.route('/shows/test/', methods=['GET','POST'])

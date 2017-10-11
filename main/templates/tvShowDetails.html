@@ -17,6 +17,7 @@
 			<p>Runtime: {{ show['episode_run_time'][0] }} minutes</p>
 			{% if show['homepage'] %}
 				<p><a href="{{ show['homepage'] }}">Show's Website</a></p>
+				
 			{% endif %}
 			<a href="{{ url_for('fav_show', id=show['id']) }}">
 			{% if back_url != 'my_favorites' %}
@@ -28,7 +29,9 @@
 			{% endif %}
 			</a>
 		</div>
+
 	</div>
+	<a href="{{url_for('similarShows', id=show['id'])}}">Shows Similar to {{show['name']}}</a><br>
 	{% endfor %}
 
 # endblock
