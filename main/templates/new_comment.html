@@ -12,6 +12,7 @@
 						{{form.csrf_token}}
 						
 						{{forms.text_field(form.body, rows=4, placeholder="Leave a comment.")|safe}}
+						{{forms.hidden_field(form.mediaType)}}
 				     <button type="submit" class="btn btn-primary btn-lg">
 			     		Submit Comment
 			      </button>

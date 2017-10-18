@@ -1,6 +1,6 @@
 # coding: utf-8
 
-from wtforms import Form, validators, StringField,TextAreaField
+from wtforms import Form, validators, StringField,TextAreaField, HiddenField
 from flask_wtf import FlaskForm
 from wtforms.validators import DataRequired, Length
 from google.appengine.api import memcache, urlfetch
@@ -14,8 +14,9 @@ import util
 
 import requests
 import urllib2
+import showFunctions #functions related tv show part.
 
-from flask import json, request
+from flask import json, request, session
 
 
 from blog.routes import blog
@@ -28,6 +29,7 @@ from faker import Factory
 # Get shows suggestions based on current show
 # Add a comment system for users
 # check out moment js for dates
+# flask g threads
 
 # https://pythonhosted.org/Flask-Caching/
 # https://www.themoviedb.org/documentation/api
@@ -38,7 +40,7 @@ from faker import Factory
 # http://flask.pocoo.org/snippets/63/
 # input-group-addon
 
-CACHE_TIME = 36000
+# CACHE_TIME = 36000
 
 class SearchShowForm(FlaskForm):
 	name = wtforms.StringField('',validators=[DataRequired(), Length(1,100)])
@@ -46,264 +48,8 @@ class SearchShowForm(FlaskForm):
 
 class NewComment(FlaskForm):
 	body = TextAreaField('', validators=[DataRequired(), Length(5, 1500)])
+	mediaType = HiddenField()
 
-def fake_data(id):
-	fake = Factory.create()
-	for _ in range(30):
-		name = fake.name()
-		body = fake.text()
-		#body = "Suspendisse gravida lorem vitae velit feugiat, id pulvinar magna euismod. Integer vel euismod turpis. Vestibulum tempor vehicula justo, et tristique erat dictum ut. Ut vel sem faucibus, placerat velit tristique, rutrum enim. Quisque rhoncus neque nec tortor faucibus maximus. Sed congue mi sed libero sagittis, ut convallis nisi auctor. Aliquam consequat dolor nec elementum pellentesque. Donec viverra felis nunc, non dapibus odio euismod vel. Nam in quam eget ante convallis efficitur ut vel lorem."
-		comment_db = model.UserComments(user_key=auth.current_user_key(), showId=id, body=body, 
-																		creator=name)
-		comment_db.put()
-
-
-def getAirsToday(page):
-	page = str(page)
-	
-	# gets memcache of shows airing today on the current user page
-	data = memcache.get('dailyTV' + page)
-
-	
-	url = "https://api.themoviedb.org/3/tv/airing_today?page=" + page + "&language=en-US&api_key=" + TMDB_API_KEY
-
-	#if there is data in memcache, just return that. else it will grab it from TMDB api
-	if data is not None:
-		return data['results'], data['total_pages']
-	else:
-		result = urlfetch.fetch(url)
-		# if the fetch was ok, then convert the json to a dictionary
-		if result.status_code == 200:
-			data = json.loads(result.content)
-			# just a check to ensure there is data, then adds it to the memcache and returns it.
-			if len(data['results']) > 0:
-				memcache.add('dailyTV' + page, data, time=CACHE_TIME)
-				memcache.add('dailyTV', data, time=CACHE_TIME)
-				return data['results'], data['total_pages']
-			else:
-				return None
-
-def all_shows_daily():
-	# gets all the shows for the day, puts them in a list and then sends them to be sorted by US country and returns that
-	totalShows = []
-	shows = []
-	page = '1'
-	url = "https://api.themoviedb.org/3/tv/airing_today?page=" + page + "&language=en-US&api_key=" + TMDB_API_KEY
-	data = memcache.get('dailyUS')
-
-	if data is not None:
-		return data
-	else:
-		result = urlfetch.fetch(url)
-		if result.status_code == 200:
-			data = json.loads(result.content)
-			if data['total_pages'] > 1:
-				for page in range(1, data['total_pages'] + 1):
-					page = str(page)
-					url = "https://api.themoviedb.org/3/tv/airing_today?page=" + page + "&language=en-US&api_key=" + TMDB_API_KEY
-					result = urlfetch.fetch(url)
-					data = json.loads(result.content)
-					shows = data['results']
-					for show in shows:
-						totalShows.append(show)
-
-		sort_shows = sort_list(totalShows)
-		memcache.add('dailyUS', sort_shows, time=CACHE_TIME)
-
-	return sort_shows
-
-def all_shows_weekly():
-	totalShows = []
-	shows = []
-	page = '1'
-	url = "https://api.themoviedb.org/3/tv/on_the_air?page=" + page +"&language=en-US&api_key=" + TMDB_API_KEY
-	data = memcache.get('weeklyUS')
-
-	if data is not None:
-		return data
-	else:
-		result = urlfetch.fetch(url)
-		if result.status_code == 200:
-			data = json.loads(result.content)
-			if data['total_pages'] > 1:
-				for page in range(1, data['total_pages'] + 1):
-					page = str(page)
-					url = "https://api.themoviedb.org/3/tv/on_the_air?page=" + page +"&language=en-US&api_key=" + TMDB_API_KEY
-					result = urlfetch.fetch(url)
-					data = json.loads(result.content)
-					shows = data['results']
-					for show in shows:
-						totalShows.append(show)
-
-		sort_shows = sort_list(totalShows)
-		memcache.add('weeklyUS', sort_shows, time=CACHE_TIME)
-		return sort_shows
-
-
-def getSimiliarShows(id):
-	id = str(id)
-	totalShows = []
-	shows = []
-	page = '1'
-	url = "https://api.themoviedb.org/3/tv/" + id + "/similar?api_key="+ TMDB_API_KEY + "&language=en-US&page=" + page
-	data = memcache.get('similarShows' + id)
-
-	if data is not None:
-		return data
-	else:
-		result = urlfetch.fetch(url)
-		if result.status_code == 200:
-			data = json.loads(result.content)
-			if data['total_pages'] > 1:
-				for page in range(1, data['total_pages'] + 1):
-					page = str(page)
-					url = "https://api.themoviedb.org/3/tv/" + id + "/similar?api_key="+ TMDB_API_KEY + "&language=en-US&page=" + page
-					result = urlfetch.fetch(url)
-					data = json.loads(result.content)
-					shows = data['results']
-					for show in shows:
-						totalShows.append(show)
-
-		sort_shows = sort_list(totalShows)
-		memcache.add('similarShows' + id, sort_shows, time=CACHE_TIME)
-		return sort_shows
-	
-
-def sort_list(shows):
-	# returns a list with US only shows.
-	# showTime for either daily or weekly shows
-	new_data = []
-
-	
-	for show in shows:
-		if show['origin_country']:
-			if str(show['origin_country'][0]) == 'US':
-				new_data.append(show)
-
-	return new_data
-
-def getAirsWeek(page):
-	# converts int page to string
-	page = str(page)
-	# gets memcache to return that if exist
-	data = memcache.get('weeklyTV' + page)
-	url = "https://api.themoviedb.org/3/tv/on_the_air?page=" + page +"&language=en-US&api_key=" + TMDB_API_KEY
-	if data is not None:
-		return data['results'], data['total_pages']
-	else:
-		result = urlfetch.fetch(url)
-		if result.status_code == 200:
-			data = json.loads(result.content)
-			if len(data['results']) > 0:
-				memcache.add('weeklyTV' + page, data, time=CACHE_TIME)
-				return data['results'], data['total_pages']
-			else:
-				return None
-
-def getDetails(id, media):
-	if media == 'tv':
-		return getSingleShowInfo(id)
-	elif media == 'movie':
-		return getMovieDetails(id)
-	
-
-def getSingleShowInfo(id):
-	show = []
-	id = str(id)
-	data = memcache.get('Single_Show' + id)
-	if data is not None:
-		return data
-	else:
-		try:
-				url = 'https://api.themoviedb.org/3/tv/' + id + '?language=en-US&api_key=' + TMDB_API_KEY
-				result = urlfetch.fetch(url)
-				if result.status_code == 200:
-					data = json.loads(result.content)
-					if len(data) > 0:
-						show.append(data)
-						memcache.add('Single_Show' + id,show,time=3600)
-						return show
-					else:
-						return None
-		except urlfetch.Error:
-				logging.exception('Caught exception fetching url')
-
-def getMovieDetails(id):
-	movie = []
-	id = str(id)
-	data = memcache.get('Single_movie' + id)
-	if data is not None:
-		return data
-	else:
-		try:
-			url = 'https://api.themoviedb.org/3/movie/'+ id +'?api_key=' + TMDB_API_KEY + '&language=en-US'
-			result = urlfetch.fetch(url)
-			if result.status_code == 200:
-				data = json.loads(result.content)
-				if len(data) > 0:
-					movie.append(data)
-					memcache.add('Single_movie' + id, movie, time=CACHE_TIME)
-					return movie
-				else:
-					return None
-		except urlfetch.Error:
-				logging.exception('Caught exception fetching url')
-
-
-# used for testing stuff
-# def getShowTest(page):
-# 	totalShows = []
-# 	getAirsToday(1, totalShows)
-# 	page = str(page)
-# 	url = "https://api.themoviedb.org/3/tv/airing_today?page=" + page + "&language=en-US&api_key=" + TMDB_API_KEY
-# 	url2 = "https://api.themoviedb.org/3/tv/airing_today?api_key=aa&language=en-US&page=2"
-# 	result = urlfetch.fetch(url)
-# 	result2 = urlfetch.fetch(url2)
-# 	if result.status_code == 200:
-# 		data = json.loads(result.content)
-# 		data2 = json.loads(result2.content)
-# 		newData = dict(data.items() + data2.items())
-# 		return newData['results'], data['total_pages']
-
-
-def getShowDetails(data):
-	# get a detail search for the show id and store it
-	# put this in a loop to get the details for each show
-	allShows = []
-	for show in data:
-		id = str(show['id'])
-		name = show['name']
-		url = 'https://api.themoviedb.org/3/tv/' + id + '?language=en-US&api_key=' + TMDB_API_KEY
-		result = urlfetch.fetch(url)
-		if result.status_code == 200:
-			data = json.loads(result.content)
-			allShows.append(data)
-	return allShows
-
-
-
-
-def getSearched(search):
-	search = search.replace(' ', '%20')
-	#url = 'https://api.themoviedb.org/3/search/tv?&query=' + search +'&language=en-US&api_key=' + TMDB_API_KEY
-	url = 'https://api.themoviedb.org/3/search/multi?api_key=' + TMDB_API_KEY + '&language=en-US&query=' + search +'&include_adult=false'
-	try:
-			result = urlfetch.fetch(url)
-			if result.status_code == 200:
-				data = json.loads(result.content)
-				return data['results']
-			else:
-				return None
-	except urlfetch.Error:
-			logging.exception('Caught exception fetching url')
-
-def isFavorited(id):
-	id = str(id)
-	fav_db, fav_cursor = model.tvShows.get_dbs(user_key=auth.current_user_key())
-	for shows in fav_db:
-		if(shows.showId == id):
-			return 'True'
-	return 'False'
 
 @app.template_filter('datetime')
 def datetimeformat(value, format='%H:%M / %d-%m-%Y'):
@@ -319,7 +65,7 @@ def datetimeformat(value, format='%H:%M / %d-%m-%Y'):
 @app.route('/shows/<string:searched>/', methods=['GET','POST'])
 def show_search(searched):
 	#showsWeek = getAirsWeek()
-	show_info = getSearched(searched)
+	show_info = showFunctions.getSearched(searched)
 	
 	if show_info:
 		#details = getShowDetails(show_info)
@@ -341,18 +87,22 @@ def show_search(searched):
 @app.route('/shows/details/<int:id>/', methods=['GET','POST'])
 #@app.route('/shows/details/<int:id>/<string:media>/', methods=['GET','POST'])
 def show_detail(id):
-	form = NewComment()
+	session.pop('media', None)
 	media = request.args.get('media')
-	if media == '':
-		media = 'tv'
 
-	shows = getDetails(id, media)
+	flask.flash(media)
+	if media is None:
+		media = 'tv'
+	session['media'] = media
+	flask.flash("sessions is: " + session['media'])
+	form = NewComment(mediaType=media)
+	shows = showFunctions.getDetails(id, media)
 	#shows = getSingleShowInfo(id, media)
 	back_url = request.args.get('back')
 	showId=str(id)
 
 	if(auth.current_user_id > 0):
-		fav = isFavorited(id)
+		fav = showFunctions.isFavorited(id)
 
 	#args = parser.parse({'-created': wf.Str(missing=None) })
 
@@ -364,11 +114,14 @@ def show_detail(id):
 
 
 	if form.validate_on_submit():
+		media = form.mediaType.data
+
 		comment = model.UserComments(user_key=auth.current_user_key(), showId=showId, body=form.body.data, 
 																		creator=auth.current_user_db().name)
 		if comment.put():
+
 			flask.flash("Comment Created", category='success')
-			return flask.redirect(flask.url_for('show_detail', id=id, order='-created'))
+			return flask.redirect(flask.url_for('show_detail', id=id, media=media, order='-created'))
 
 	return flask.render_template('details.html',
 																html_class='show_detail',
@@ -415,7 +168,7 @@ def my_favorites():
 @auth.login_required
 def fav_show(id):
 	id = str(id)
-	show  = getSingleShowInfo(id)
+	show  = showFunctions.getSingleShowInfo(id)
 	if(show[0]['poster_path']):
 		showPoster = show[0]['poster_path']
 
@@ -448,7 +201,7 @@ def remove_favorite(id):
 def shows_today():
 	#shows, totalPages = getAirsToday(page)
 	#flask.flash(shows, category='success')
-	shows = all_shows_daily()
+	shows = showFunctions.all_shows_daily()
 	#sortShows = sort_list(shows)
 	#flask.flash(sortShows)
 	if shows:
@@ -457,6 +210,7 @@ def shows_today():
 																html_class = 'todays-shows',
 																shows = shows,
 																head = head,
+																media = 'tv',
 																back_url = 'shows_today'
 																)
 	else:
@@ -466,13 +220,14 @@ def shows_today():
 @app.route('/weekly/', methods=['GET', 'POST'])
 def shows_weekly():
 	#shows, totalPages = getAirsWeek(page)
-	shows = all_shows_weekly()
+	shows = showFunctions.all_shows_weekly()
 	if shows:
 		head = "Weekly Shows"
 		return flask.render_template('tvShows.html',
 																html_class = 'todays-shows',
 																shows = shows,
 																head = head,
+																media = 'tv',
 																back_url = 'shows_weekly'
 																)
 	else:
@@ -481,7 +236,7 @@ def shows_weekly():
 
 @app.route('/similarShows/<int:id>', methods=['GET', 'POST'])
 def similarShows(id):
-	shows = getSimiliarShows(id)
+	shows = showFunctions.getSimiliarShows(id)
 	if shows:
 		head = "Similar Shows"
 		return flask.render_template('tvShows.html', html_class='similar-shows', shows=shows, head = head, back_url='similar')

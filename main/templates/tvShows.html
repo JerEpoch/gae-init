@@ -10,10 +10,13 @@
 
 
 	{% for show in shows %}
+		{% if show['media_type'] %}
+			{% set media = show['media_type'] %}
+		{% endif %}
 
 			<div class="container" id="posterDiv">
 				{% if show['poster_path'] %}
-					<a href="{{ url_for('show_detail', id=show['id'], media=show['media_type'], order='-created', back=back_url) }}">
+					<a href="{{ url_for('show_detail', id=show['id'], media=media, order='-created', back=back_url) }}">
 						<img id="poster" src="https://image.tmdb.org/t/p/w300{{ show['poster_path'] }}">
 					</a>
 				{% endif %}
