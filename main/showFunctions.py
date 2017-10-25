@@ -7,12 +7,6 @@ from config import TMDB_API_KEY
 
 CACHE_TIME = 36000
 
-# class SearchShowForm(FlaskForm):
-# 	name = wtforms.StringField('',validators=[DataRequired(), Length(1,100)])
-# 	#searchOptions = wtforms.SelectField('Search For:', choices=[('name','TV Show'), ('name','Actor'), ('name','Movie')], default=1)
-
-# class NewComment(FlaskForm):
-# 	body = TextAreaField('', validators=[DataRequired(), Length(5, 1500)])
 
 # def fake_data(id):
 # 	fake = Factory.create()
