@@ -7,6 +7,8 @@ from config import TMDB_API_KEY
 
 CACHE_TIME = 36000
 
+"""   This file contains all the functions for collect, parsing and storing data """
+
 
 # def fake_data(id):
 # 	fake = Factory.create()
@@ -20,6 +22,11 @@ CACHE_TIME = 36000
 
 
 def getAirsToday(page):
+	""" this is no longer needed. Just keeping it show how things progressed.
+			This would take the page that user was on and return the results from the API 
+			Now I do this all at once
+	"""
+
 	page = str(page)
 	
 	# gets memcache of shows airing today on the current user page
@@ -74,6 +81,7 @@ def all_shows_daily():
 	return sort_shows
 
 def all_shows_weekly():
+	# same as daily, but grabs the shows airing within 7 days.
 	totalShows = []
 	shows = []
 	page = '1'
@@ -102,6 +110,11 @@ def all_shows_weekly():
 
 
 def getSimiliarShows(id):
+	"""
+		Gets similiar shows based on the current show the user is on. Returns a list.
+		Also adds the list to the memory cache
+	"""
+
 	id = str(id)
 	totalShows = []
 	shows = []
@@ -144,6 +157,9 @@ def sort_list(shows):
 	return new_data
 
 def getAirsWeek(page):
+	"""
+		This is also no longer used. Kept to show progress.
+	"""
 	# converts int page to string
 	page = str(page)
 	# gets memcache to return that if exist
@@ -171,6 +187,11 @@ def getDetails(id, media):
 	
 
 def getSingleShowInfo(id):
+	""" 
+			Gets information about the current show that is passed via in the ID.
+			Returns a list of the info and adds to memcache
+	"""
+
 	show = []
 	id = str(id)
 	data = memcache.get('Single_Show' + id)
@@ -192,6 +213,10 @@ def getSingleShowInfo(id):
 				logging.exception('Caught exception fetching url')
 
 def getMovieDetails(id):
+	""" 
+			Gets information about the current movie that is passed via in the ID.
+			Returns a list of the info and adds to memcache
+	"""
 	movie = []
 	id = str(id)
 	data = memcache.get('Single_movie' + id)
@@ -247,6 +272,12 @@ def getShowDetails(data):
 
 
 def getSearched(search):
+	""" 
+		Get the show information from the search the user performances.
+		It first replaces all spaces with %20 per api.
+		Then it gets the information and adds to a list
+	"""
+
 	search = search.replace(' ', '%20')
 	#url = 'https://api.themoviedb.org/3/search/tv?&query=' + search +'&language=en-US&api_key=' + TMDB_API_KEY
 	url = 'https://api.themoviedb.org/3/search/multi?api_key=' + TMDB_API_KEY + '&language=en-US&query=' + search +'&include_adult=false'
@@ -261,6 +292,10 @@ def getSearched(search):
 			logging.exception('Caught exception fetching url')
 
 def isFavorited(id):
+	"""
+			This checks whether the current show page the user is on is in their favorites
+			This is used to either show or hide the favorite button.
+	"""
 	id = str(id)
 	fav_db, fav_cursor = model.tvShows.get_dbs(user_key=auth.current_user_key())
 	for shows in fav_db:

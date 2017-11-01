@@ -42,6 +42,15 @@ from faker import Factory
 
 # CACHE_TIME = 36000
 
+"""
+	ABOUT THE SITE:
+	This site makes calls to TMDB API to get it's information.
+	It can display shows airing on the current date and within a week.
+	Users can perform searches for shows and movies.
+	Site also displays some information about the show or movie.
+	Users can add comments and add shows to their favorites.
+"""
+
 class SearchShowForm(FlaskForm):
 	name = wtforms.StringField('',validators=[DataRequired(), Length(1,100)])
 	#searchOptions = wtforms.SelectField('Search For:', choices=[('name','TV Show'), ('name','Actor'), ('name','Movie')], default=1)
