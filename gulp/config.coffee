@@ -12,6 +12,7 @@ config =
     "#{paths.static.ext}/bootstrap/js/collapse.js"
     "#{paths.static.ext}/bootstrap/js/dropdown.js"
     "#{paths.static.ext}/bootstrap/js/tooltip.js"
+    "#{paths.static.ext}/waypoints/lib/jquery.waypoints.js"
   ]
   style: [
     "#{paths.src.style}/style.less"
