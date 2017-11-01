@@ -5,8 +5,9 @@
 # block content
 
 
-<div class="container" id="posterDiv">
+<div class="container" id="show-header">
 	<h1>{{ head }}</h1>
+</div>
 
 
 	{% for show in shows %}
@@ -24,6 +25,7 @@
 		
 	{% endfor %}
 
+<div class="container" id="show-search">
 	<a href="{{ url_for('search_a_show') }}">New Search</a>
 </div>
 
