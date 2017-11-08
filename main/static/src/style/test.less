@@ -47,3 +47,38 @@
     }
   }
 }
+
+
+#containerTest {
+  height: 2000px;
+}
+
+#containerTest > div {
+  margin: 50px;
+  padding: 50px;
+  background-color: lightgreen;
+}
+
+.hideme
+{
+    opacity:0;
+}
+
+
+.content_box {
+  height: 100px;
+  width: 300px;
+  color: #fff;
+  background: blue;
+  margin: 200px;
+  padding: 30px;
+  display: block;
+  opacity: 0;
+  visibility: hidden;
+  -webkit-transition: all 300ms ease-in;
+  transition: all 300ms ease-in;
+}
+.show {
+  opacity: 1;
+  visibility: visible;
+}
