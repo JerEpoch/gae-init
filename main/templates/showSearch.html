@@ -3,48 +3,43 @@
 
 
 # block content
-<body id="test">
+<div class="container">
+	<div class="row">
+		<div class="col-md-6 col-md-offset-3 col-sm-4 col-sm-offset-4">
+		<h1>Search</h1>
+			<form method="POST" action=".">
+				<fieldset>
+					{{ form.csrf_token }}
+					
 
-	<div class="container-fluid">
-		<div class="row">
-			<div class="col-md-6">
-			<h1>Search</h1>
-				<form method="POST" action=".">
-					<fieldset>
-						{{ form.csrf_token }}
-						
-
-						{{forms.text_field(form.name,  placeholder="Search For Shows or Movies")}}
-						
-						
-						<a href="{{ url_for('search_a_show') }}">
-						<button type="submit" id="btn-search" class="btn btn-primary">
-							Search
-						</button>
-					</a>
-
-					</fieldset>
-				</form>
-
-				<a href="{{ url_for('shows_today', back_url='shows_today') }}">
-					<button type="submit" id="btn-today" class="btn btn-primary">
-						Today's Shows
+					{{forms.text_field(form.name,  placeholder="Search For Shows or Movies")}}
+					
+					
+					<a href="{{ url_for('search_a_show') }}">
+					<button type="submit" id="btn-search" class="btn btn-primary">
+						Search
 					</button>
 				</a>
 
-				<form action="{{ url_for('shows_weekly', page=1, back_url='shows_weekly') }}" method="POST">
-					<button type="submit" id="btn-week" class="btn btn-primary">
-						Weekly Shows
-					</button>
-					
-				</form>
-			<br>
-			<p>Powered By <a href="https://www.themoviedb.org">The Movie DB</a></p>
-			
-			</div>
+				</fieldset>
+			</form>
+
+			<a href="{{ url_for('shows_today', back_url='shows_today') }}">
+				<button type="submit" id="btn-today" class="btn btn-primary">
+					Today's Shows
+				</button>
+			</a>
+
+			<form action="{{ url_for('shows_weekly', page=1, back_url='shows_weekly') }}" method="POST">
+				<button type="submit" id="btn-week" class="btn btn-primary">
+					Weekly Shows
+				</button>
+				
+			</form>
+		<br>
+		<p>Powered By <a href="https://www.themoviedb.org">The Movie DB</a></p>
+		<p>Because this uses an external API results may not be up to date.</p>
 		</div>
 	</div>
-</body>
-
-
+</div>
 # endblock

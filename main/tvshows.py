@@ -71,37 +71,33 @@ def datetimeformat(value, format='%H:%M / %d-%m-%Y'):
 #         routes
 #=====================================================
 
+# Grabs the info of the show or movie the user searched for.
 @app.route('/shows/<string:searched>/', methods=['GET','POST'])
 def show_search(searched):
-	#showsWeek = getAirsWeek()
 	show_info = showFunctions.getSearched(searched)
 	
 	if show_info:
-		#details = getShowDetails(show_info)
-		head = "Your Search"
+		head = "Your Search Results"
 		return flask.render_template('tvShows.html',
 														html_class = 'searched',
 														shows = show_info,
 														head = head,
 														)
-		# return flask.render_template('searched.html',
-		# 														html_class='searched',
-		# 														details = details,
-		# 														)
 	else:
 		errors = "We could not find the show " + searched + ". Please try searching again."
 		return flask.render_template('search_error.html', html_class='search-error', errors=errors)
 
-
+# Displays the show's info to the user
 @app.route('/shows/details/<int:id>/', methods=['GET','POST'])
-#@app.route('/shows/details/<int:id>/<string:media>/', methods=['GET','POST'])
 def show_detail(id):
+	# remove the media from session and set a new one.
+	# this is used for the back url
 	session.pop('media', None)
 	media = request.args.get('media')
-
 	if media is None:
 		media = 'tv'
 	session['media'] = media
+
 	form = NewComment(mediaType=media)
 	shows = showFunctions.getDetails(id, media)
 	#shows = getSingleShowInfo(id, media)
@@ -111,14 +107,10 @@ def show_detail(id):
 	if(auth.current_user_id > 0):
 		fav = showFunctions.isFavorited(id)
 
-	#args = parser.parse({'-created': wf.Str(missing=None) })
 
 	#fake_data(showid)
 
 	comments_db, comments_cursor = model.UserComments.get_dbs(showId = showId, limit=10, prev_cursor=True)
-	# comments_query = model.UserComments.query().order(-model.UserComments.created)
-	# comments_db = comments_query.filter(model.UserComments.showId == showid)
-
 
 	if form.validate_on_submit():
 		media = form.mediaType.data
@@ -152,7 +144,6 @@ def search_a_show():
 	if form.validate_on_submit():
 		searched = form.name.data
 		return flask.redirect(flask.url_for('show_search', searched=searched))
-		#return search
 
 	return flask.render_template('showSearch.html',
 															html_class = 'show-search',
@@ -170,6 +161,7 @@ def my_favorites():
 																show=fav_db,
 																back_url = 'my_favorites'
 																)
+
 # Add to favorites
 @app.route("/favorite/<int:id>")
 @auth.login_required
@@ -203,14 +195,10 @@ def remove_favorite(id):
 		flask.flash("Removed from favorites.", category='success')
 	return flask.redirect(flask.url_for('my_favorites'))
 
-#@app.route('/daily/<int:page>/', methods=['GET', 'POST'])
+# Gets the shows that are airing on the current day.
 @app.route('/daily/', methods=['GET', 'POST'])
 def shows_today():
-	#shows, totalPages = getAirsToday(page)
-	#flask.flash(shows, category='success')
 	shows = showFunctions.all_shows_daily()
-	#sortShows = sort_list(shows)
-	#flask.flash(sortShows)
 	if shows:
 		head = "Today's Shows"
 		return flask.render_template('tvShows.html',
@@ -224,9 +212,9 @@ def shows_today():
 		errors = "Something went wrong fetching the current day's shows. Please try again later."
 		return flask.render_template('search_error.html', html_class='search-error', errors=errors)
 
+# Gets the shows that airing within the week.
 @app.route('/weekly/', methods=['GET', 'POST'])
 def shows_weekly():
-	#shows, totalPages = getAirsWeek(page)
 	shows = showFunctions.all_shows_weekly()
 	if shows:
 		head = "Weekly Shows"
@@ -241,6 +229,7 @@ def shows_weekly():
 		errors = "Something went wrong getting the weekly shows. Please try again later."
 		return flask.render_template('search_error.html', html_class='search-error', errors=errors)
 
+# Gets similiar shows to the one the user is on.
 @app.route('/similarShows/<int:id>', methods=['GET', 'POST'])
 def similarShows(id):
 	shows = showFunctions.getSimiliarShows(id)
