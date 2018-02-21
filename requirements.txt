@@ -1,9 +1,14 @@
 blinker==1.4
+<<<<<<< HEAD
 flask-login==0.4.0
+=======
+flask-login==0.4.1
+>>>>>>> ff8f2978b0ea7e08701e2a1ca6979be267d1242d
 flask-oauthlib==0.9.4
 flask-restful==0.3.6
 flask-wtf==0.14.2
 flask==0.12.2
+<<<<<<< HEAD
 pyjwt==1.5.0
 unidecode==0.4.20
 webargs==1.7.0
@@ -11,3 +16,8 @@ flask-debugtoolbar==0.10.1
 Flask-Moment
 Faker
 
+=======
+pyjwt==1.5.3
+unidecode==0.4.21
+webargs==1.8.1
+>>>>>>> ff8f2978b0ea7e08701e2a1ca6979be267d1242d

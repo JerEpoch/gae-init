@@ -44,7 +44,11 @@ def get_shadows_dir(dirname):
   if not os.path.exists(dirname):
     return shadow_pkgs
   for pkg in os.listdir(dirname):
+<<<<<<< HEAD
     if not os.path.isfile(pkg) and is_shadowing(pkg):
+=======
+    if not pkg == '__init__.py' and os.path.isfile(pkg) and is_shadowing(pkg):
+>>>>>>> ff8f2978b0ea7e08701e2a1ca6979be267d1242d
       shadow_pkgs.add(pkg)
   return shadow_pkgs
 
@@ -53,4 +57,8 @@ def sys_path_insert(dirname):
   if dirname.endswith('.zip'):
     path_package_path(dirname, get_shadows_zip(dirname))
   else:
+<<<<<<< HEAD
     path_package_path(dirname, get_shadows_dir(dirname))
+=======
+    path_package_path(dirname, get_shadows_dir(dirname))
+>>>>>>> ff8f2978b0ea7e08701e2a1ca6979be267d1242d
